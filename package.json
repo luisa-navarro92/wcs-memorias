@@ -1,0 +1,17 @@
+{
+  "name": "wcs-memorias",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Memorias del taller IA Learn para WCS Colombia y generador de certificados",
+  "scripts": {
+    "test": "node --test tests/",
+    "assets": "node tools/preparar-assets.mjs",
+    "fuentes": "node tools/preparar-fuentes.mjs",
+    "servir": "node tools/servidor.mjs"
+  },
+  "devDependencies": {
+    "jspdf": "4.2.1",
+    "pngjs": "7.0.0"
+  }
+}
