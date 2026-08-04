@@ -27,7 +27,7 @@ export const BACKEND = {
 export const EVALUACION = [
   { cifra: '42', etiqueta: 'evaluaciones recibidas' },
   { cifra: '4,5', etiqueta: 'de 5 en calificación promedio' },
-  { cifra: '5', etiqueta: 'módulos en 4 horas' },
+  { cifra: '4', etiqueta: 'módulos en estas memorias' },
 ];
 
 export const MODULOS = [
