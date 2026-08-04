@@ -9,7 +9,8 @@
     "assets": "node tools/preparar-assets.mjs",
     "fuentes": "node tools/preparar-fuentes.mjs",
     "servir": "node tools/servidor.mjs",
-    "construir": "node tools/construir-sitio.mjs"
+    "construir": "node tools/construir-sitio.mjs",
+    "empaquetar": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/empaquetar-sitio.ps1"
   },
   "devDependencies": {
     "jspdf": "4.2.1",
