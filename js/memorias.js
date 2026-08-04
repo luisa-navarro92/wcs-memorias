@@ -42,9 +42,33 @@ function pintar(documento, id, html) {
   if (contenedor) contenedor.innerHTML = html;
 }
 
+// El script de Instagram ya no viene cargado desde index.html: tiene acceso
+// completo al DOM y no debe correr junto al formulario donde se escribe la
+// cédula. Se inserta bajo demanda, y solo una vez por carga de página.
+let scriptInstagramInsertado = false;
+
+function insertarScriptInstagram(documento) {
+  if (scriptInstagramInsertado) return;
+  scriptInstagramInsertado = true;
+
+  const script = documento.createElement('script');
+  script.src = 'https://www.instagram.com/embed.js';
+  script.async = true;
+  script.addEventListener(
+    'load',
+    () => {
+      if (window.instgrm) window.instgrm.Embeds.process();
+    },
+    { once: true }
+  );
+  documento.head.appendChild(script);
+}
+
 /**
- * El script de Instagram se carga con `async`: puede terminar después de que
- * pintamos. Sin el reintento, los reels se quedarían como enlaces sueltos.
+ * Solo carga el script de Instagram cuando la sección de reels entra en el
+ * viewport: en equipos corporativos con el dominio bloqueado, o para quien
+ * nunca llega a esa sección, el formulario de cédulas nunca comparte página
+ * con un script de terceros.
  */
 function procesarInstagram(documento) {
   if (typeof window === 'undefined') return;
@@ -54,16 +78,21 @@ function procesarInstagram(documento) {
     return;
   }
 
-  const script = documento.querySelector('script[src*="instagram.com/embed.js"]');
-  if (!script) return;
+  if (scriptInstagramInsertado) return;
 
-  script.addEventListener(
-    'load',
-    () => {
-      if (window.instgrm) window.instgrm.Embeds.process();
-    },
-    { once: true }
-  );
+  const contenedor = documento.getElementById('lista-reels');
+  if (!contenedor || typeof window.IntersectionObserver !== 'function') {
+    insertarScriptInstagram(documento);
+    return;
+  }
+
+  const observador = new window.IntersectionObserver((entradas) => {
+    if (entradas.some((entrada) => entrada.isIntersecting)) {
+      insertarScriptInstagram(documento);
+      observador.disconnect();
+    }
+  });
+  observador.observe(contenedor);
 }
 
 export function pintarMemorias(documento) {

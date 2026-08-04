@@ -29,6 +29,19 @@ test('validarEnCliente repite las mismas reglas del backend', () => {
   assert.match(validarEnCliente({ ...base, autoriza: false }), /autoriza/i);
 });
 
+test('validarEnCliente usa la misma regla de tokens y conectores que apps-script/Matcher.gs', () => {
+  const base = { cedula: '1032456789', correo: 'c@wcs.org', autoriza: true };
+
+  // Caso de iniciales que la dueña del proyecto decidió aceptar: el navegador
+  // ya no debe rechazarlo aunque solo tenga una letra en el primer token.
+  assert.equal(validarEnCliente({ ...base, nombre: 'J Pérez' }), null);
+  // Nombre compuesto escrito junto: dos tokens reales tras normalizar.
+  assert.equal(validarEnCliente({ ...base, nombre: 'Anamaría Torres' }), null);
+  // Solo conectores más un apellido: un único token real, igual que rechaza el servidor.
+  assert.match(validarEnCliente({ ...base, nombre: 'De Los Santos' }), /nombre y apellido/i);
+  assert.match(validarEnCliente({ ...base, nombre: 'Carlos' }), /nombre y apellido/i);
+});
+
 test('enviarSolicitud reintenta y termina devolviendo la respuesta', async () => {
   let intentos = 0;
   const fetchFalso = async () => {

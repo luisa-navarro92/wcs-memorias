@@ -1,8 +1,30 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { jsPDF } from 'jspdf';
-import { formatearCedula, nombreParaMostrar, nombreArchivo, construirCertificado } from '../js/certificado.js';
+import { formatearCedula, nombreParaMostrar, nombreArchivo, construirCertificado, descargarCertificado } from '../js/certificado.js';
 import * as recursos from '../assets/generados/recursos.js';
+
+/** Reemplazo mínimo de jsPDF: alcanza con los métodos que usa construirCertificado. */
+class JsPDFFalso {
+  addFileToVFS() {}
+  addFont() {}
+  setFillColor() {}
+  setDrawColor() {}
+  setLineWidth() {}
+  rect() {}
+  addImage() {}
+  setFont() {}
+  setFontSize() {}
+  setTextColor() {}
+  text() {}
+  line() {}
+  splitTextToSize(texto) {
+    return [texto];
+  }
+  save(nombreArchivo) {
+    this.guardadoComo = nombreArchivo;
+  }
+}
 
 test('formatearCedula separa los miles con puntos', () => {
   assert.equal(formatearCedula('1032456789'), '1.032.456.789');
@@ -65,4 +87,61 @@ test('construirCertificado se niega a emitir con datos inválidos', () => {
 test('construirCertificado no revienta con un nombre muy corto', () => {
   const doc = construirCertificado(jsPDF, { nombre: 'Ana Ruiz', cedula: '123456' }, recursos);
   assert.ok(new Uint8Array(doc.output('arraybuffer')).length > 50000);
+});
+
+test('descargarCertificado quita del DOM el script de jsPDF si no carga', async () => {
+  let removido = false;
+  globalThis.window = {};
+  globalThis.document = {
+    createElement: () => {
+      const script = { remove: () => { removido = true; } };
+      queueMicrotask(() => script.onerror());
+      return script;
+    },
+    head: { appendChild: () => {} },
+  };
+
+  try {
+    await assert.rejects(
+      descargarCertificado({ nombre: 'Carlos Ríos', cedula: '1032456789' }),
+      /generador de PDF/
+    );
+    assert.equal(removido, true, 'la etiqueta rota no debería quedarse en el DOM');
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});
+
+test('descargarCertificado solo inserta una etiqueta de jsPDF aunque se llame dos veces a la vez', async () => {
+  const scriptsInsertados = [];
+  globalThis.window = {};
+  globalThis.document = {
+    createElement: () => {
+      const script = {};
+      scriptsInsertados.push(script);
+      return script;
+    },
+    head: {
+      appendChild: (script) => {
+        // Simula que jsPDF terminó de cargar y quedó disponible como global.
+        queueMicrotask(() => {
+          globalThis.window.jspdf = { jsPDF: JsPDFFalso };
+          script.onload();
+        });
+      },
+    },
+  };
+
+  try {
+    const datosUno = { nombre: 'Carlos Andrés Ríos Franco', cedula: '1032456789' };
+    const datosDos = { nombre: 'Ana Ruiz', cedula: '123456' };
+
+    await Promise.all([descargarCertificado(datosUno), descargarCertificado(datosDos)]);
+
+    assert.equal(scriptsInsertados.length, 1, 'dos llamadas casi simultáneas deberían compartir la misma carga');
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+  }
 });

@@ -154,16 +154,34 @@ export function construirCertificado(jsPDF, datos, recursos) {
   return doc;
 }
 
-/** Solo navegador: carga jsPDF y el bundle de recursos, y dispara la descarga. */
-export async function descargarCertificado(datos) {
-  if (!window.jspdf) {
-    await new Promise((resolver, rechazar) => {
+// Se guarda la promesa (no solo un booleano) para que dos llamadas casi
+// simultáneas, antes de que jsPDF termine de cargar, esperen la misma carga
+// en vez de insertar la etiqueta <script> dos veces.
+let promesaJsPdf = null;
+
+function cargarJsPdf() {
+  if (!promesaJsPdf) {
+    promesaJsPdf = new Promise((resolver, rechazar) => {
       const script = document.createElement('script');
       script.src = 'assets/vendor/jspdf.umd.min.js';
       script.onload = resolver;
-      script.onerror = () => rechazar(new Error('No se pudo cargar el generador de PDF.'));
+      script.onerror = () => {
+        // Si quedó a medio cargar, no se deja la etiqueta rota en el DOM, y
+        // se libera la promesa para que un reintento pueda volver a intentarlo.
+        script.remove();
+        promesaJsPdf = null;
+        rechazar(new Error('No se pudo cargar el generador de PDF.'));
+      };
       document.head.appendChild(script);
     });
+  }
+  return promesaJsPdf;
+}
+
+/** Solo navegador: carga jsPDF y el bundle de recursos, y dispara la descarga. */
+export async function descargarCertificado(datos) {
+  if (!window.jspdf) {
+    await cargarJsPdf();
   }
   const recursos = await import('../assets/generados/recursos.js');
   const doc = construirCertificado(window.jspdf.jsPDF, datos, recursos);

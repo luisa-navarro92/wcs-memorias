@@ -36,8 +36,26 @@ export function leerFormulario(campos) {
   };
 }
 
+// Copia navegador de la normalización y del conteo de tokens de
+// apps-script/Matcher.gs (tokensNombre). Si una cambia, la otra debe
+// cambiar junto con ella: si no, el navegador y el servidor discrepan
+// sobre qué nombres son válidos.
+const CONECTORES_NOMBRE = ['de', 'del', 'la', 'las', 'los', 'y', 'da', 'do', 'van', 'von'];
+
+function tokensNombreCliente(texto) {
+  return String(texto == null ? '' : texto)
+    .normalize('NFD')
+    .replace(/\p{Mn}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter((token) => token.length >= 1 && !CONECTORES_NOMBRE.includes(token));
+}
+
 export function validarEnCliente(datos) {
-  if (datos.nombre.split(' ').filter((t) => t.length > 1).length < 2) {
+  if (tokensNombreCliente(datos.nombre).length < 2) {
     return 'Escribe tu nombre y apellido completos.';
   }
   if (!/^\d{6,12}$/.test(datos.cedula)) {
@@ -104,6 +122,9 @@ function conectarFormulario(documento) {
 
   const boton = documento.getElementById('boton-generar');
   const caja = documento.getElementById('estado-certificado');
+  // El texto vive solo acá: index.html ya no necesita repetirlo, así que
+  // el botón no puede quedarse en "Validando…" si un solo lugar cambia de texto.
+  const textoBoton = boton.textContent;
 
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
@@ -141,7 +162,7 @@ function conectarFormulario(documento) {
       mostrarEstado(caja, 'error');
     } finally {
       boton.disabled = false;
-      boton.textContent = 'Generar mi certificado';
+      boton.textContent = textoBoton;
     }
   });
 }
