@@ -300,7 +300,7 @@ Entregados, en `assets/`:
 | Archivo | Formato | Observación |
 | --- | --- | --- |
 | `logo-porcontar.png` | 1200 × 756, ARGB con transparencia | El texto va en negro. Hace falta derivar una variante blanca para los bloques en verde oscuro: se genera en build reemplazando el negro por blanco y conservando el amarillo |
-| `logo-wcs.png` | 360 × 363, PNG indexado con transparencia | Se convierte a ARGB de 32 bits antes de embeberlo, porque jsPDF maneja mal los PNG indexados con transparencia. La resolución alcanza para el tamaño impreso (~25 mm de ancho) |
+| `logo-wcs.png` | 360 × 363, PNG indexado **sin transparencia** | Es una captura de pantalla del logo, no el logo: trae horneado el tablero de ajedrez con el que los visores dibujan la transparencia (alterna `255,255,255` con `238,239,239`) y el texto «WCS» en gris claro. Se extrae la W por saturación de color, lo que deja la marca limpia y con transparencia real, y se recorta. El texto «WCS» se pierde: es la salida que Luisa aprobó mientras no llegue el archivo original del cliente |
 | `firma-ximena.png` | 301 × 243, fondo blanco opaco | Se le quita el blanco por umbral en build, para poder ubicarla sobre cualquier fondo. A 45 mm de ancho queda en ~170 ppp: suficiente para una firma, pero si aparece un escaneo de mayor resolución conviene reemplazarla |
 
 En `assets/descargas/`: `kit-prompts-wcs.pdf`, `prompt-claude-humano.pdf` y
