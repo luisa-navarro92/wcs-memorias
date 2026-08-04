@@ -1823,9 +1823,11 @@ export function construirCertificado(jsPDF, datos, recursos) {
   doc.setLineWidth(0.5);
   doc.rect(10, 14, ANCHO - 20, 182);
 
-  // Logos
-  doc.addImage(recursos.LOGO_PORCONTAR, 'PNG', 22, 22, 42, 26.5, undefined, 'SLOW');
-  doc.addImage(recursos.LOGO_WCS, 'PNG', ANCHO - 47, 22, 25, 18.1, undefined, 'SLOW');
+  // Logo. El de WCS se retiró mientras el cliente no autorice su uso en un
+  // documento formal; el texto del cuerpo sigue diciendo para quién se dictó.
+  // Para volver a ponerlo: descentrar este logo a x=22 y agregar
+  // doc.addImage(recursos.LOGO_WCS, 'PNG', ANCHO - 47, 22, 25, 18.1, undefined, 'SLOW');
+  doc.addImage(recursos.LOGO_PORCONTAR, 'PNG', CENTRO - 21, 22, 42, 26.5, undefined, 'SLOW');
 
   // Título
   doc.setFont('Poppins', 'bold');

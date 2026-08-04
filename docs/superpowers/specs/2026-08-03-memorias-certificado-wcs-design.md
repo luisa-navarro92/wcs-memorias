@@ -238,7 +238,10 @@ no el Helvetica por defecto de jsPDF.
 Composición, de arriba abajo:
 
 - Marco azul `#2B4FE8` con un sello circular en amarillo `#FFF401` arriba a la derecha
-- Logo PorContar a la izquierda, logo WCS a la derecha
+- Logo PorContar centrado arriba. El logo de WCS se retiró del certificado el
+  2026-08-04, por decisión de Luisa, mientras Mónica Lozano no autorice su uso en un
+  documento formal. El cuerpo del certificado sigue diciendo que el taller se
+  realizó para WCS Colombia, y `js/certificado.js` deja anotado cómo devolverlo
 - `CERTIFICADO` en Poppins ExtraBold navy, `DE PARTICIPACIÓN` debajo en azul
 - `POR CONTAR GROUP S.A.S · NIT 901986736-1`
 - «Por medio de la presente se deja constancia de que»
