@@ -10,6 +10,7 @@ test('los datos del taller coinciden con el certificado', () => {
   assert.equal(config.TALLER.nit, '901986736-1');
   assert.equal(config.TALLER.firmante, 'Ximena Andrea Villalobos');
   assert.equal(config.TALLER.cargoFirmante, 'Gerente');
+  assert.equal(config.TALLER.slugCertificado, 'IA-Learn-WCS');
 });
 
 test('el contenido de las memorias está completo', () => {

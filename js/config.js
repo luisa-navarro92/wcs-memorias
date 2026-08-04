@@ -14,6 +14,8 @@ export const TALLER = {
   nit: '901986736-1',
   firmante: 'Ximena Andrea Villalobos',
   cargoFirmante: 'Gerente',
+  // Prefijo del archivo PDF que descarga la persona.
+  slugCertificado: 'IA-Learn-WCS',
   facilitadoras: 'Ximena Villalobos · Luisa Navarro',
 };
 

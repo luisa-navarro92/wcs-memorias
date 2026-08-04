@@ -41,7 +41,7 @@ export function nombreArchivo(nombre) {
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/ /g, '-');
-  return `Certificado-IA-Learn-WCS-${limpio}.pdf`;
+  return `Certificado-${TALLER.slugCertificado}-${limpio}.pdf`;
 }
 
 function centrar(doc, texto, y) {
@@ -49,6 +49,16 @@ function centrar(doc, texto, y) {
 }
 
 export function construirCertificado(jsPDF, datos, recursos) {
+  // Un certificado es un documento formal: antes que emitir uno con la cédula
+  // vacía o el nombre en blanco, no se emite ninguno.
+  const cedula = String(datos.cedula == null ? '' : datos.cedula).replace(/\D/g, '');
+  if (!/^\d{6,12}$/.test(cedula)) {
+    throw new Error('La cédula no es válida: el certificado no se emite.');
+  }
+  if (nombreParaMostrar(datos.nombre).length < 3) {
+    throw new Error('El nombre no es válido: el certificado no se emite.');
+  }
+
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
   doc.addFileToVFS('Poppins-Regular.ttf', recursos.POPPINS_REGULAR);
@@ -99,7 +109,7 @@ export function construirCertificado(jsPDF, datos, recursos) {
   doc.setFont('Poppins', 'normal');
   doc.setFontSize(10.5);
   doc.setTextColor(...NAVY);
-  centrar(doc, `C.C. ${formatearCedula(datos.cedula)}`, 117);
+  centrar(doc, `C.C. ${formatearCedula(cedula)}`, 117);
 
   // Cuerpo
   const parrafos = [

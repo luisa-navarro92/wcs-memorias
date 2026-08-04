@@ -45,6 +45,23 @@ test('el bloque de textos no invade el bloque de la firma', () => {
   assert.ok(doc.__finTextos <= 155, `los párrafos llegan hasta ${doc.__finTextos} mm y la firma empieza en 158`);
 });
 
+test('construirCertificado se niega a emitir con datos inválidos', () => {
+  const casos = [
+    { nombre: 'Carlos Ríos', cedula: '' },
+    { nombre: 'Carlos Ríos', cedula: 'abc' },
+    { nombre: 'Carlos Ríos', cedula: '123' },
+    { nombre: '', cedula: '1032456789' },
+  ];
+
+  for (const datos of casos) {
+    assert.throws(
+      () => construirCertificado(jsPDF, datos, recursos),
+      /no se emite/,
+      `debería negarse con ${JSON.stringify(datos)}`
+    );
+  }
+});
+
 test('construirCertificado no revienta con un nombre muy corto', () => {
   const doc = construirCertificado(jsPDF, { nombre: 'Ana Ruiz', cedula: '123456' }, recursos);
   assert.ok(new Uint8Array(doc.output('arraybuffer')).length > 50000);
