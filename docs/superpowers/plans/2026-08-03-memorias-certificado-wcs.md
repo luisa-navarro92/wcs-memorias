@@ -1420,6 +1420,7 @@ test('los datos del taller coinciden con el certificado', () => {
   assert.equal(config.TALLER.nit, '901986736-1');
   assert.equal(config.TALLER.firmante, 'Ximena Andrea Villalobos');
   assert.equal(config.TALLER.cargoFirmante, 'Gerente');
+  assert.equal(config.TALLER.slugCertificado, 'IA-Learn-WCS');
 });
 
 test('el contenido de las memorias está completo', () => {
@@ -1483,6 +1484,8 @@ export const TALLER = {
   nit: '901986736-1',
   firmante: 'Ximena Andrea Villalobos',
   cargoFirmante: 'Gerente',
+  // Prefijo del archivo PDF que descarga la persona.
+  slugCertificado: 'IA-Learn-WCS',
   facilitadoras: 'Ximena Villalobos · Luisa Navarro',
 };
 
@@ -1712,6 +1715,23 @@ test('el bloque de textos no invade el bloque de la firma', () => {
   assert.ok(doc.__finTextos <= 155, `los párrafos llegan hasta ${doc.__finTextos} mm y la firma empieza en 158`);
 });
 
+test('construirCertificado se niega a emitir con datos inválidos', () => {
+  const casos = [
+    { nombre: 'Carlos Ríos', cedula: '' },
+    { nombre: 'Carlos Ríos', cedula: 'abc' },
+    { nombre: 'Carlos Ríos', cedula: '123' },
+    { nombre: '', cedula: '1032456789' },
+  ];
+
+  for (const datos of casos) {
+    assert.throws(
+      () => construirCertificado(jsPDF, datos, recursos),
+      /no se emite/,
+      `debería negarse con ${JSON.stringify(datos)}`
+    );
+  }
+});
+
 test('construirCertificado no revienta con un nombre muy corto', () => {
   const doc = construirCertificado(jsPDF, { nombre: 'Ana Ruiz', cedula: '123456' }, recursos);
   assert.ok(new Uint8Array(doc.output('arraybuffer')).length > 50000);
@@ -1769,7 +1789,7 @@ export function nombreArchivo(nombre) {
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/ /g, '-');
-  return `Certificado-IA-Learn-WCS-${limpio}.pdf`;
+  return `Certificado-${TALLER.slugCertificado}-${limpio}.pdf`;
 }
 
 function centrar(doc, texto, y) {
@@ -1777,6 +1797,16 @@ function centrar(doc, texto, y) {
 }
 
 export function construirCertificado(jsPDF, datos, recursos) {
+  // Un certificado es un documento formal: antes que emitir uno con la cédula
+  // vacía o el nombre en blanco, no se emite ninguno.
+  const cedula = String(datos.cedula == null ? '' : datos.cedula).replace(/\D/g, '');
+  if (!/^\d{6,12}$/.test(cedula)) {
+    throw new Error('La cédula no es válida: el certificado no se emite.');
+  }
+  if (nombreParaMostrar(datos.nombre).length < 3) {
+    throw new Error('El nombre no es válido: el certificado no se emite.');
+  }
+
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
   doc.addFileToVFS('Poppins-Regular.ttf', recursos.POPPINS_REGULAR);
@@ -1827,7 +1857,7 @@ export function construirCertificado(jsPDF, datos, recursos) {
   doc.setFont('Poppins', 'normal');
   doc.setFontSize(10.5);
   doc.setTextColor(...NAVY);
-  centrar(doc, `C.C. ${formatearCedula(datos.cedula)}`, 117);
+  centrar(doc, `C.C. ${formatearCedula(cedula)}`, 117);
 
   // Cuerpo
   const parrafos = [
@@ -1889,7 +1919,7 @@ export async function descargarCertificado(datos) {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 44 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
+Expected: PASS, 45 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
 
 - [ ] **Step 5: Generar un certificado de muestra y revisarlo a ojo**
 
@@ -2363,7 +2393,7 @@ createServer(async (peticion, respuesta) => {
 - [ ] **Step 6: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 49 pruebas en total.
+Expected: PASS, 50 pruebas en total.
 
 - [ ] **Step 7: Revisión visual**
 
@@ -2597,7 +2627,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 54 pruebas en total.
+Expected: PASS, 55 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2860,7 +2890,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 60 pruebas en total.
+Expected: PASS, 61 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -2956,7 +2986,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 60 pruebas
+npm test           # 61 pruebas
 npm run servir     # http://localhost:4173
 ```
 
