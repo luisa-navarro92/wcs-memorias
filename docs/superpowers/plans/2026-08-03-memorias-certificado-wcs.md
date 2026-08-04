@@ -425,7 +425,7 @@ function validarDatos(datos) {
     return 'Escribe un correo electrónico válido.';
   }
   if (datos.autoriza !== true) {
-    return 'Necesitamos que autorices el tratamiento de tus datos.';
+    return 'Necesitamos tu autorización para el tratamiento de tus datos.';
   }
   return null;
 }
@@ -2570,7 +2570,7 @@ export function validarEnCliente(datos) {
     return 'Escribe un correo electrónico válido.';
   }
   if (!datos.autoriza) {
-    return 'Necesitamos que autorices el tratamiento de tus datos.';
+    return 'Necesitamos tu autorización para el tratamiento de tus datos.';
   }
   return null;
 }
