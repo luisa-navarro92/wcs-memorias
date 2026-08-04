@@ -56,16 +56,16 @@ function tokensNombreCliente(texto) {
 
 export function validarEnCliente(datos) {
   if (tokensNombreCliente(datos.nombre).length < 2) {
-    return 'Escribe tu nombre y apellido completos.';
+    return { campo: 'nombre', mensaje: 'Escribe tu nombre y apellido completos.' };
   }
   if (!/^\d{6,12}$/.test(datos.cedula)) {
-    return 'La cédula debe tener entre 6 y 12 dígitos.';
+    return { campo: 'cedula', mensaje: 'La cédula debe tener entre 6 y 12 dígitos.' };
   }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(datos.correo)) {
-    return 'Escribe un correo electrónico válido.';
+    return { campo: 'correo', mensaje: 'Escribe un correo electrónico válido.' };
   }
   if (!datos.autoriza) {
-    return 'Necesitamos tu autorización para el tratamiento de tus datos.';
+    return { campo: 'autoriza', mensaje: 'Necesitamos tu autorización para el tratamiento de tus datos.' };
   }
   return null;
 }
@@ -116,6 +116,22 @@ function mostrarEstado(caja, variante, textoExtra) {
   caja.dataset.visible = 'true';
 }
 
+// Campos que puede señalar validarEnCliente, en el mismo orden que sus reglas.
+const CAMPOS_VALIDABLES = ['nombre', 'cedula', 'correo', 'autoriza'];
+
+function limpiarInvalidos(formulario) {
+  for (const id of CAMPOS_VALIDABLES) {
+    formulario.querySelector(`#${id}`)?.removeAttribute('aria-invalid');
+  }
+}
+
+function marcarInvalido(formulario, campoId) {
+  const campo = formulario.querySelector(`#${campoId}`);
+  if (!campo) return;
+  campo.setAttribute('aria-invalid', 'true');
+  campo.focus();
+}
+
 function conectarFormulario(documento) {
   const formulario = documento.getElementById('formulario-certificado');
   if (!formulario) return;
@@ -128,11 +144,13 @@ function conectarFormulario(documento) {
 
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
+    limpiarInvalidos(formulario);
     const datos = leerFormulario(new FormData(formulario));
 
     const errorLocal = validarEnCliente(datos);
     if (errorLocal) {
-      mostrarEstado(caja, 'error', errorLocal);
+      mostrarEstado(caja, 'error', errorLocal.mensaje);
+      marcarInvalido(formulario, errorLocal.campo);
       return;
     }
 

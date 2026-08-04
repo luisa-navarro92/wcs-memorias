@@ -176,6 +176,12 @@ a { color: var(--azul-porcontar); }
   outline-offset: 1px;
   border-color: transparent;
 }
+/* Campo que falló la validación: mismo rojo que .estado--error, para que el
+   bloqueo sea imposible de pasar por alto. */
+.campo input[aria-invalid="true"] {
+  border-color: #8b1d1d;
+  background: #fdeeee;
+}
 .campo-autorizacion {
   display: flex;
   gap: 0.7rem;
@@ -183,6 +189,9 @@ a { color: var(--azul-porcontar); }
   font-size: 0.9rem;
   color: #5b6479;
   margin: 1.5rem 0;
+}
+.campo-autorizacion:has(input[aria-invalid="true"]) {
+  color: #8b1d1d;
 }
 .estado { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 12px; display: none; }
 .estado[data-visible="true"] { display: block; }

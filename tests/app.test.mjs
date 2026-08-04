@@ -23,10 +23,30 @@ test('leerFormulario limpia espacios y normaliza la cédula', () => {
 test('validarEnCliente repite las mismas reglas del backend', () => {
   const base = { nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true };
   assert.equal(validarEnCliente(base), null);
-  assert.match(validarEnCliente({ ...base, nombre: 'Carlos' }), /nombre y apellido/i);
-  assert.match(validarEnCliente({ ...base, cedula: '12' }), /cédula/i);
-  assert.match(validarEnCliente({ ...base, correo: 'nope' }), /correo/i);
-  assert.match(validarEnCliente({ ...base, autoriza: false }), /autoriza/i);
+
+  const nombreVacio = validarEnCliente({ ...base, nombre: '' });
+  assert.equal(nombreVacio.campo, 'nombre');
+  assert.match(nombreVacio.mensaje, /nombre y apellido/i);
+
+  const nombreIncompleto = validarEnCliente({ ...base, nombre: 'Carlos' });
+  assert.equal(nombreIncompleto.campo, 'nombre');
+  assert.match(nombreIncompleto.mensaje, /nombre y apellido/i);
+
+  const cedulaVacia = validarEnCliente({ ...base, cedula: '' });
+  assert.equal(cedulaVacia.campo, 'cedula');
+  assert.match(cedulaVacia.mensaje, /cédula/i);
+
+  const cedulaInvalida = validarEnCliente({ ...base, cedula: '12' });
+  assert.equal(cedulaInvalida.campo, 'cedula');
+  assert.match(cedulaInvalida.mensaje, /cédula/i);
+
+  const correoInvalido = validarEnCliente({ ...base, correo: 'nope' });
+  assert.equal(correoInvalido.campo, 'correo');
+  assert.match(correoInvalido.mensaje, /correo/i);
+
+  const sinAutorizar = validarEnCliente({ ...base, autoriza: false });
+  assert.equal(sinAutorizar.campo, 'autoriza');
+  assert.match(sinAutorizar.mensaje, /autoriza/i);
 });
 
 test('validarEnCliente usa la misma regla de tokens y conectores que apps-script/Matcher.gs', () => {
@@ -38,8 +58,8 @@ test('validarEnCliente usa la misma regla de tokens y conectores que apps-script
   // Nombre compuesto escrito junto: dos tokens reales tras normalizar.
   assert.equal(validarEnCliente({ ...base, nombre: 'Anamaría Torres' }), null);
   // Solo conectores más un apellido: un único token real, igual que rechaza el servidor.
-  assert.match(validarEnCliente({ ...base, nombre: 'De Los Santos' }), /nombre y apellido/i);
-  assert.match(validarEnCliente({ ...base, nombre: 'Carlos' }), /nombre y apellido/i);
+  assert.match(validarEnCliente({ ...base, nombre: 'De Los Santos' }).mensaje, /nombre y apellido/i);
+  assert.match(validarEnCliente({ ...base, nombre: 'Carlos' }).mensaje, /nombre y apellido/i);
 });
 
 test('enviarSolicitud reintenta y termina devolviendo la respuesta', async () => {
