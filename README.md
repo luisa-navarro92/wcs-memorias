@@ -23,6 +23,7 @@ Para probar el formulario sin Google: `node tools/backend-falso.mjs` y apuntar
 - `js/config.js` — todo el contenido editable
 - `js/certificado.js` — el diseño del PDF
 - `apps-script/` — el backend que se pega en el editor de Apps Script
+- `apps-script/Preparar.gs` — deja el Sheet listo (pestañas y cabeceras); se ejecuta una sola vez
 - `tools/` — scripts de preparación y servidores de desarrollo
 
 ## Cambiar el taller o el cliente
