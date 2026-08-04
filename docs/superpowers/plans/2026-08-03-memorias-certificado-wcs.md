@@ -1,4 +1,4 @@
-# Memorias IA Learn WCS + generador de certificados — Plan de implementación
+﻿# Memorias IA Learn WCS + generador de certificados — Plan de implementación
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -39,7 +39,7 @@ El corazón de la validación. Se escribe primero porque todo lo demás depende 
 
 **Interfaces:**
 - Consumes: nada
-- Produces: en el ámbito global de Apps Script, `normalizarNombre(texto) → string`, `tokensNombre(texto) → string[]`, `coincideNombre(a, b) → boolean`, `buscarAsistente(nombre, listaAsistentes: string[]) → string|null`. El helper de pruebas `cargarGs(archivos: string[], opciones: { globales?: object, exportar?: string[] }) → object`.
+- Produces: en el ámbito global de Apps Script, `normalizarNombre(texto) → string`, `tokensNombre(texto) → string[]`, `formasComparables(tokens) → string[]`, `tokenAparece(token, formas) → boolean`, `estaContenido(tokens, otrosTokens) → boolean`, `coincideNombre(a, b) → boolean`, `buscarAsistente(nombre, listaAsistentes: string[]) → string|null`. El helper de pruebas `cargarGs(archivos: string[], opciones: { globales?: object, exportar?: string[] }) → object`.
 
 - [ ] **Step 1: Crear `package.json`**
 
@@ -51,7 +51,7 @@ El corazón de la validación. Se escribe primero porque todo lo demás depende 
   "type": "module",
   "description": "Memorias del taller IA Learn para WCS Colombia y generador de certificados",
   "scripts": {
-    "test": "node --test tests/",
+    "test": "node --test \"tests/*.test.mjs\"",
     "assets": "node tools/preparar-assets.mjs",
     "fuentes": "node tools/preparar-fuentes.mjs",
     "servir": "node tools/servidor.mjs"
@@ -125,9 +125,10 @@ test('normalizarNombre quita tildes, mayúsculas y puntuación', () => {
   assert.equal(normalizarNombre(null), '');
 });
 
-test('tokensNombre descarta conectores y partículas de una letra', () => {
+test('tokensNombre descarta conectores y conserva las iniciales', () => {
   assert.deepEqual(tokensNombre('Jahel García de la Hoz'), ['jahel', 'garcia', 'hoz']);
   assert.deepEqual(tokensNombre('María del Pilar Aguirre'), ['maria', 'pilar', 'aguirre']);
+  assert.deepEqual(tokensNombre('J Pérez'), ['j', 'perez']);
 });
 
 test('coincideNombre acepta los casos reales de la hoja', () => {
@@ -141,6 +142,12 @@ test('coincideNombre acepta los casos reales de la hoja', () => {
   for (const [a, b] of iguales) {
     assert.equal(coincideNombre(a, b), true, `debería coincidir: ${a} / ${b}`);
   }
+});
+
+test('coincideNombre acepta iniciales sueltas y nombres compuestos pegados', () => {
+  assert.equal(coincideNombre('J Pérez', 'Juan Pérez Gómez'), true);
+  assert.equal(coincideNombre('Anamaría Torres', 'Ana María Torres'), true);
+  assert.equal(coincideNombre('Ana María Torres', 'Anamaría Torres'), true);
 });
 
 test('coincideNombre rechaza personas distintas que comparten un nombre', () => {
@@ -202,23 +209,44 @@ function tokensNombre(texto) {
   return normalizarNombre(texto)
     .split(' ')
     .filter(function (token) {
-      return token.length > 1 && CONECTORES.indexOf(token) === -1;
+      return token.length >= 1 && CONECTORES.indexOf(token) === -1;
     });
+}
+
+/**
+ * Las formas con las que se puede comparar un nombre: cada token suelto y
+ * cada par de tokens seguidos pegados, para reconocer los nombres compuestos
+ * que la gente escribe junta ("Anamaría" por "Ana María").
+ */
+function formasComparables(tokens) {
+  var formas = tokens.slice();
+  for (var i = 0; i < tokens.length - 1; i++) {
+    formas.push(tokens[i] + tokens[i + 1]);
+  }
+  return formas;
+}
+
+/** Una inicial suelta vale por el nombre que empieza con esa letra. */
+function tokenAparece(token, formas) {
+  for (var i = 0; i < formas.length; i++) {
+    if (formas[i] === token) return true;
+    if (token.length === 1 && formas[i].charAt(0) === token) return true;
+  }
+  return false;
+}
+
+function estaContenido(tokens, otrosTokens) {
+  var formas = formasComparables(otrosTokens);
+  return tokens.every(function (token) {
+    return tokenAparece(token, formas);
+  });
 }
 
 function coincideNombre(nombreA, nombreB) {
   var a = tokensNombre(nombreA);
   var b = tokensNombre(nombreB);
   if (a.length < 2 || b.length < 2) return false;
-
-  var comunes = a.filter(function (token) {
-    return b.indexOf(token) !== -1;
-  });
-  if (comunes.length < 2) return false;
-
-  var aDentroDeB = a.every(function (token) { return b.indexOf(token) !== -1; });
-  var bDentroDeA = b.every(function (token) { return a.indexOf(token) !== -1; });
-  return aDentroDeB || bDentroDeA;
+  return estaContenido(a, b) || estaContenido(b, a);
 }
 
 /**
@@ -242,7 +270,7 @@ function buscarAsistente(nombre, listaAsistentes) {
 - [ ] **Step 8: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 7 pruebas.
+Expected: PASS, 8 pruebas.
 
 - [ ] **Step 9: Commit**
 
@@ -424,7 +452,7 @@ function procesarSolicitud(datos, repo) {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 15 pruebas en total.
+Expected: PASS, 16 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -702,7 +730,7 @@ function crearRepositorio() {
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 20 pruebas en total.
+Expected: PASS, 21 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -855,7 +883,7 @@ function aprobarSeleccionados() {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 23 pruebas en total.
+Expected: PASS, 24 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1023,7 +1051,7 @@ Expected: imprime "Imágenes listas en assets/generados". Abrir los tres PNG y c
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 26 pruebas en total.
+Expected: PASS, 27 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1157,7 +1185,7 @@ Expected: imprime los tamaños de las dos fuentes (alrededor de 150 KB cada una)
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 28 pruebas en total.
+Expected: PASS, 29 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1416,7 +1444,7 @@ export const REDES = [
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 33 pruebas en total.
+Expected: PASS, 34 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1664,7 +1692,7 @@ export async function descargarCertificado(datos) {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 39 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
+Expected: PASS, 40 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
 
 - [ ] **Step 5: Generar un certificado de muestra y revisarlo a ojo**
 
@@ -2138,7 +2166,7 @@ createServer(async (peticion, respuesta) => {
 - [ ] **Step 6: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 44 pruebas en total.
+Expected: PASS, 45 pruebas en total.
 
 - [ ] **Step 7: Revisión visual**
 
@@ -2372,7 +2400,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 49 pruebas en total.
+Expected: PASS, 50 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2635,7 +2663,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 55 pruebas en total.
+Expected: PASS, 56 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -2731,7 +2759,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 55 pruebas
+npm test           # 56 pruebas
 npm run servir     # http://localhost:4173
 ```
 

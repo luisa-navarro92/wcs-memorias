@@ -131,8 +131,10 @@ correo a `info.porcontar@gmail.com` con los datos.
 1. Normalizar ambos nombres: minúsculas, sin tildes ni diéresis, sin signos de puntuación,
    espacios colapsados.
 2. Partir en tokens y descartar conectores (`de`, `del`, `la`, `las`, `los`, `y`).
-3. Hay coincidencia si el conjunto de tokens de un nombre está contenido en el del otro, en
-   cualquier dirección, y comparten al menos dos tokens.
+3. Hay coincidencia si todos los tokens de un nombre aparecen en el otro, en cualquier
+   dirección, y ambos nombres tienen al menos dos tokens. Un token aparece si es idéntico,
+   si es una inicial de una sola letra y algún token del otro nombre empieza por esa letra,
+   o si equivale a dos tokens seguidos del otro nombre escritos juntos.
 4. Si coincide con más de un registro de `Asistentes`, gana la coincidencia exacta; si no hay
    ninguna exacta, se responde `pendiente` para que lo resuelva una persona.
 
@@ -144,8 +146,17 @@ Casos reales que debe resolver, tomados de la hoja:
 | Sandra Gonzalez Watson | Sandra González | Coincide |
 | HECTOR FABIO ORTIZ CORTAZAR | Hector Fabio Ortiz Cortazar | Coincide |
 | Carlos Ríos | Carlos Andrés Ríos Franco | Coincide |
+| J Pérez | Juan Pérez Gómez | Coincide |
+| Anamaría Torres | Ana María Torres | Coincide |
 | Carlos Castillo | Carlos Saavedra | No coincide |
 | Laura Ortega | Laura Natalia Rosado Muñoz | No coincide |
+
+**Riesgo aceptado.** El matcher es deliberadamente permisivo, por decisión de Luisa el
+2026-08-03: prioriza que ningún asistente real se quede sin su certificado por escribir su
+nombre distinto. El costo es que dos personas que comparten el primer nombre y un apellido
+pueden confundirse — «Ana Rodríguez» coincide con «Ana Milena Herrera Rodríguez» — y alguien
+que no asistió podría descargar un certificado. La hoja `Descargas` deja el rastro para
+detectarlo.
 
 ### Flujo de aprobación
 
