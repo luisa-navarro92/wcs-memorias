@@ -6,3 +6,6 @@ muestra.pdf
 
 # El banner original pesa 19 MB; en el sitio va assets/banner-wcs.jpg
 assets/banner-wcs-original.png
+
+# Carpeta de publicacion, se regenera con npm run construir
+dist/
