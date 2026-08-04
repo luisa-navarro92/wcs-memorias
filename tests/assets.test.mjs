@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
-import { aBlanco, quitarFondoBlanco, main } from '../tools/preparar-assets.mjs';
+import { aBlanco, quitarFondoBlanco, extraerMarcaDeColor, main } from '../tools/preparar-assets.mjs';
 
 function pngDe(pixeles) {
   const png = new PNG({ width: pixeles.length, height: 1 });
@@ -49,6 +49,21 @@ test('quitarFondoBlanco deja transparente el blanco y opaco el trazo', () => {
   assert.equal(pixel(resultado, 1)[3], 255);
 });
 
+test('extraerMarcaDeColor borra el tablero de transparencia y recorta', () => {
+  // gris del tablero · blanco del tablero · teal del logo · gris claro del texto WCS
+  const resultado = extraerMarcaDeColor(
+    pngDe([
+      [238, 239, 239, 255],
+      [255, 255, 255, 255],
+      [44, 140, 125, 255],
+      [201, 204, 203, 255],
+    ])
+  );
+
+  assert.equal(resultado.width, 1, 'debe recortarse a la marca de color');
+  assert.deepEqual(pixel(resultado, 0), [44, 140, 125, 255]);
+});
+
 test('main genera los tres archivos listos para usar', () => {
   main();
 
@@ -63,9 +78,13 @@ test('main genera los tres archivos listos para usar', () => {
 
   const wcs = PNG.sync.read(readFileSync('assets/generados/logo-wcs.png'));
   assert.equal(wcs.colorType, 6, 'el logo de WCS debe quedar en RGBA de 8 bits por canal');
-  assert.equal(wcs.data[3], 0, 'el fondo blanco del logo de WCS debe quedar transparente');
   const opacosWcs = contarOpacos(wcs);
   assert.ok(opacosWcs > 5000, `el logo de WCS quedó casi vacío: ${opacosWcs} píxeles opacos`);
+  assert.equal(
+    contarOpacosSinColor(wcs),
+    0,
+    'quedaron píxeles grises opacos: el tablero de transparencia no se limpió'
+  );
 
   const firma = PNG.sync.read(readFileSync('assets/generados/firma-ximena.png'));
   assert.equal(firma.data[3], 0, 'la esquina de la firma debe quedar transparente');
@@ -85,6 +104,16 @@ function contarNegros(png) {
   let total = 0;
   for (let i = 0; i < png.data.length; i += 4) {
     if (png.data[i + 3] > 200 && png.data[i] < 60 && png.data[i + 1] < 60 && png.data[i + 2] < 60) total++;
+  }
+  return total;
+}
+
+function contarOpacosSinColor(png) {
+  let total = 0;
+  for (let i = 0; i < png.data.length; i += 4) {
+    const saturacion = Math.max(png.data[i], png.data[i + 1], png.data[i + 2]) -
+      Math.min(png.data[i], png.data[i + 1], png.data[i + 2]);
+    if (png.data[i + 3] > 200 && saturacion < 30) total++;
   }
   return total;
 }

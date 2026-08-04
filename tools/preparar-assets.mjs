@@ -80,6 +80,54 @@ export function quitarFondoBlanco(png, { alto = 245, bajo = 200 } = {}) {
   return png;
 }
 
+/**
+ * Deja solo los píxeles con color y recorta el sobrante.
+ *
+ * El logo de WCS que entregó el cliente es una captura de pantalla: trae
+ * horneado el tablero de ajedrez con el que los visores dibujan la
+ * transparencia (alterna 255,255,255 con 238,239,239) y el texto "WCS" en gris
+ * claro. Nada de eso tiene saturación, así que filtrar por saturación deja la
+ * W de colores limpia y con transparencia real.
+ */
+export function extraerMarcaDeColor(png, { umbral = 30 } = {}) {
+  let minX = png.width;
+  let minY = png.height;
+  let maxX = -1;
+  let maxY = -1;
+
+  for (let y = 0; y < png.height; y++) {
+    for (let x = 0; x < png.width; x++) {
+      const i = (png.width * y + x) * 4;
+      const r = png.data[i];
+      const g = png.data[i + 1];
+      const b = png.data[i + 2];
+      const saturacion = Math.max(r, g, b) - Math.min(r, g, b);
+
+      if (saturacion >= umbral) {
+        png.data[i + 3] = 255;
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      } else {
+        png.data[i + 3] = 0;
+      }
+    }
+  }
+
+  if (maxX < 0) return png;
+
+  const recortado = new PNG({ width: maxX - minX + 1, height: maxY - minY + 1 });
+  for (let y = 0; y < recortado.height; y++) {
+    for (let x = 0; x < recortado.width; x++) {
+      const origen = (png.width * (y + minY) + (x + minX)) * 4;
+      const destino = (recortado.width * y + x) * 4;
+      for (let c = 0; c < 4; c++) recortado.data[destino + c] = png.data[origen + c];
+    }
+  }
+  return recortado;
+}
+
 function leer(nombre) {
   return PNG.sync.read(readFileSync(`${ENTRADA}/${nombre}`));
 }
@@ -93,8 +141,7 @@ export function main() {
 
   escribir(aBlanco(leer('logo-porcontar.png')), 'logo-porcontar-blanco.png');
   escribir(quitarFondoBlanco(leer('firma-ximena.png')), 'firma-ximena.png');
-  // El original de WCS viene indexado y con fondo blanco opaco, no transparente.
-  escribir(quitarFondoBlanco(leer('logo-wcs.png')), 'logo-wcs.png');
+  escribir(extraerMarcaDeColor(leer('logo-wcs.png')), 'logo-wcs.png');
 
   console.log('Imágenes listas en', SALIDA);
 }
