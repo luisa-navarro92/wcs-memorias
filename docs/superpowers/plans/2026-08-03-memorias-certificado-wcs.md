@@ -2001,6 +2001,23 @@ test('el formulario del certificado trae los cuatro campos y el aviso de datos',
   assert.match(html, /tratamiento de (mis )?datos/i);
 });
 
+test('cada campo tiene su etiqueta, los ids no se repiten y el estado se anuncia', () => {
+  const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((coincidencia) => coincidencia[1]);
+  assert.equal(new Set(ids).size, ids.length, `hay id repetidos: ${ids.join(', ')}`);
+
+  for (const [, destino] of html.matchAll(/<label[^>]*\sfor="([^"]+)"/g)) {
+    assert.ok(ids.includes(destino), `una etiqueta apunta a #${destino}, que no existe`);
+  }
+
+  for (const campo of ['nombre', 'cedula', 'correo']) {
+    assert.match(html, new RegExp(`<label[^>]*for="${campo}"`), `falta la etiqueta de ${campo}`);
+    assert.match(html, new RegExp(`<input[^>]*id="${campo}"`), `falta el campo ${campo}`);
+  }
+
+  // Un lector de pantalla debe anunciar el resultado sin que la persona lo busque.
+  assert.match(html, /id="estado-certificado"[^>]*role="status"[^>]*aria-live="polite"/);
+});
+
 test('la paleta acordada está declarada como variables CSS', () => {
   const colores = ['#F4EFE4', '#FBF8F2', '#14432F', '#1E5E4E', '#2F9C8B', '#2E7BA6', '#DCD3C2', '#11162A', '#2B4FE8', '#FFF401'];
   for (const color of colores) {
@@ -2203,7 +2220,7 @@ a { color: var(--azul-porcontar); }
 }
 .estado { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 12px; display: none; }
 .estado[data-visible="true"] { display: block; }
-.estado--ok { background: #e7f5ef; color: #14432F; }
+.estado--ok { background: #e7f5ef; color: var(--verde-bosque); }
 .estado--aviso { background: #fdf3d8; color: #6b5300; }
 .estado--error { background: #fdeaea; color: #8b1d1d; }
 
@@ -2256,7 +2273,9 @@ a { color: var(--azul-porcontar); }
   gap: 1.2rem;
 }
 
-.reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+/* El `min()` evita que en una pantalla de 320 px la columna de 300 px
+   desborde el ancho del contenedor. */
+.reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
 .reels blockquote { margin: 0 auto; }
 
 footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
@@ -2403,7 +2422,7 @@ createServer(async (peticion, respuesta) => {
 - [ ] **Step 6: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 50 pruebas en total.
+Expected: PASS, 51 pruebas en total.
 
 - [ ] **Step 7: Revisión visual**
 
@@ -2637,7 +2656,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 55 pruebas en total.
+Expected: PASS, 56 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2900,7 +2919,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 61 pruebas en total.
+Expected: PASS, 62 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -2996,7 +3015,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 61 pruebas
+npm test           # 62 pruebas
 npm run servir     # http://localhost:4173
 ```
 
