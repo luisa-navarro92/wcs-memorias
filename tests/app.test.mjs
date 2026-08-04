@@ -74,8 +74,28 @@ test('enviarSolicitud manda el cuerpo como texto plano para evitar el preflight'
   assert.equal(JSON.parse(opcionesRecibidas.body).cedula, '123456');
 });
 
+test('enviarSolicitud no espera para siempre si el servidor no responde', async () => {
+  let abortos = 0;
+  const fetchFalso = (_url, opciones) =>
+    new Promise((_, rechazar) => {
+      opciones.signal.addEventListener('abort', () => {
+        abortos += 1;
+        rechazar(new Error('la solicitud se abortó por tiempo'));
+      });
+    });
+
+  await assert.rejects(
+    enviarSolicitud(
+      { nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true },
+      { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0, limiteMs: 20 }
+    ),
+    /tiempo/
+  );
+  assert.equal(abortos, 3, 'debería abortar cada uno de los tres intentos');
+});
+
 test('hay un mensaje para cada estado que puede devolver el backend', () => {
-  for (const estado of ['aprobado', 'repetida', 'pendiente', 'error']) {
+  for (const estado of ['aprobado', 'repetida', 'pendiente', 'error', 'pdf']) {
     assert.ok(MENSAJES[estado], `falta el mensaje de ${estado}`);
   }
 });
