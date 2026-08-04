@@ -1275,8 +1275,18 @@ test('el bundle de recursos existe y trae fuentes e imágenes utilizables', asyn
     );
   }
 
+  const PREFIJO = 'data:image/png;base64,';
   for (const clave of ['LOGO_PORCONTAR', 'LOGO_PORCONTAR_BLANCO', 'LOGO_WCS', 'FIRMA']) {
-    assert.match(recursos[clave], /^data:image\/png;base64,/, `${clave} debe ser una data URL`);
+    const url = recursos[clave];
+    assert.ok(url.startsWith(PREFIJO), `${clave} debe ser una data URL`);
+
+    const bytes = Buffer.from(url.slice(PREFIJO.length), 'base64');
+    assert.ok(bytes.length > 2000, `${clave} parece vacía: ${bytes.length} bytes`);
+    assert.equal(
+      bytes.subarray(0, 8).toString('hex'),
+      '89504e470d0a1a0a',
+      `${clave} no empieza con la firma de un PNG`
+    );
   }
 });
 
@@ -1320,6 +1330,15 @@ async function descargar(url) {
   return Buffer.from(await respuesta.arrayBuffer());
 }
 
+/** Las imágenes las produce `npm run assets`, que corre antes que este script. */
+function leerImagen(ruta) {
+  try {
+    return readFileSync(ruta);
+  } catch {
+    throw new Error(`Falta ${ruta}. Corré primero: npm run assets`);
+  }
+}
+
 async function main() {
   mkdirSync('assets/generados', { recursive: true });
   mkdirSync('assets/vendor', { recursive: true });
@@ -1336,7 +1355,7 @@ async function main() {
   }
 
   for (const [nombre, ruta] of Object.entries(IMAGENES)) {
-    const datos = readFileSync(ruta);
+    const datos = leerImagen(ruta);
     lineas.push(`export const ${nombre} = 'data:image/png;base64,${datos.toString('base64')}';`, '');
   }
 
