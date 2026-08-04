@@ -79,7 +79,8 @@ export function construirCertificado(jsPDF, datos, recursos) {
   // documento formal; el texto del cuerpo sigue diciendo para quién se dictó.
   // Para volver a ponerlo: descentrar este logo a x=22 y agregar
   // doc.addImage(recursos.LOGO_WCS, 'PNG', ANCHO - 47, 22, 25, 18.1, undefined, 'SLOW');
-  doc.addImage(recursos.LOGO_PORCONTAR, 'PNG', CENTRO - 21, 22, 42, 26.5, undefined, 'SLOW');
+  // Termina en 40 mm; el título arranca cerca de 50 mm.
+  doc.addImage(recursos.LOGO_PORCONTAR, 'PNG', CENTRO - 17.5, 18, 35, 22, undefined, 'SLOW');
 
   // Título
   doc.setFont('Poppins', 'bold');
