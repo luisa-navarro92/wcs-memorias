@@ -12,15 +12,54 @@ export function luminancia(r, g, b) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** Reemplaza los píxeles oscuros por blanco, para usar el logo sobre fondos verdes. */
+function esAmarillo(r, g, b) {
+  return r > 200 && g > 180 && b < 120;
+}
+
+/**
+ * Para cada fila, la primera y la última columna con amarillo: el contorno del globo.
+ * Devuelve [-1, -1] en las filas donde no hay globo.
+ */
+export function limitesDelGlobo(png) {
+  const limites = [];
+  for (let y = 0; y < png.height; y++) {
+    let primera = -1;
+    let ultima = -1;
+    for (let x = 0; x < png.width; x++) {
+      const i = (png.width * y + x) * 4;
+      if (png.data[i + 3] > 0 && esAmarillo(png.data[i], png.data[i + 1], png.data[i + 2])) {
+        if (primera === -1) primera = x;
+        ultima = x;
+      }
+    }
+    limites.push([primera, ultima]);
+  }
+  return limites;
+}
+
+/**
+ * Vuelve blancos los píxeles oscuros, para usar el logo sobre fondos verdes.
+ * Los tres puntos del globo quedan encerrados por el contorno amarillo y viven
+ * sobre el interior blanco: si se blanquearan, desaparecerían. Por eso todo lo
+ * que esté entre el borde izquierdo y el derecho del globo se deja intacto.
+ */
 export function aBlanco(png, umbral = 90) {
-  for (let i = 0; i < png.data.length; i += 4) {
-    if (png.data[i + 3] === 0) continue;
-    const lum = luminancia(png.data[i], png.data[i + 1], png.data[i + 2]);
-    if (lum < umbral) {
-      png.data[i] = 255;
-      png.data[i + 1] = 255;
-      png.data[i + 2] = 255;
+  const limites = limitesDelGlobo(png);
+
+  for (let y = 0; y < png.height; y++) {
+    const [primera, ultima] = limites[y];
+    for (let x = 0; x < png.width; x++) {
+      const i = (png.width * y + x) * 4;
+      if (png.data[i + 3] === 0) continue;
+
+      const dentroDelGlobo = primera !== -1 && x > primera && x < ultima;
+      if (dentroDelGlobo) continue;
+
+      if (luminancia(png.data[i], png.data[i + 1], png.data[i + 2]) < umbral) {
+        png.data[i] = 255;
+        png.data[i + 1] = 255;
+        png.data[i + 2] = 255;
+      }
     }
   }
   return png;
@@ -54,7 +93,8 @@ export function main() {
 
   escribir(aBlanco(leer('logo-porcontar.png')), 'logo-porcontar-blanco.png');
   escribir(quitarFondoBlanco(leer('firma-ximena.png')), 'firma-ximena.png');
-  escribir(leer('logo-wcs.png'), 'logo-wcs.png');
+  // El original de WCS viene indexado y con fondo blanco opaco, no transparente.
+  escribir(quitarFondoBlanco(leer('logo-wcs.png')), 'logo-wcs.png');
 
   console.log('Imágenes listas en', SALIDA);
 }
