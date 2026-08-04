@@ -173,7 +173,7 @@ a { color: var(--azul-porcontar); }
 }
 .estado { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 12px; display: none; }
 .estado[data-visible="true"] { display: block; }
-.estado--ok { background: #e7f5ef; color: #14432F; }
+.estado--ok { background: #e7f5ef; color: var(--verde-bosque); }
 .estado--aviso { background: #fdf3d8; color: #6b5300; }
 .estado--error { background: #fdeaea; color: #8b1d1d; }
 
@@ -226,7 +226,9 @@ a { color: var(--azul-porcontar); }
   gap: 1.2rem;
 }
 
-.reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+/* El `min()` evita que en una pantalla de 320 px la columna de 300 px
+   desborde el ancho del contenedor. */
+.reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
 .reels blockquote { margin: 0 auto; }
 
 footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
