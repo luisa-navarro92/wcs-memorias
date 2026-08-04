@@ -2067,6 +2067,14 @@ body {
 
 section { padding: 5rem 0; }
 
+/* Los párrafos sueltos de cada sección no deben pasar de una línea legible. */
+.contenedor > p,
+.contenedor > ul { max-width: 68ch; }
+
+section .rejilla,
+section .reels,
+section .glosario { margin-top: 2.5rem; }
+
 .seccion-oscura {
   background: var(--verde-bosque);
   color: var(--blanco-calido);
@@ -2083,6 +2091,7 @@ section { padding: 5rem 0; }
 }
 
 .seccion-oscura .antetitulo { color: var(--teal); }
+.antetitulo--amarillo { color: var(--amarillo-porcontar); }
 
 h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0 0 1rem; }
 h1 { font-size: clamp(2.4rem, 5.5vw, 4rem); font-weight: 700; }
@@ -2254,6 +2263,7 @@ footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 
 footer a { color: var(--blanco-calido); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 .footer__redes { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 2rem 0; }
+.footer__nota { opacity: 0.6; font-size: 0.85rem; }
 
 .boton-flotante {
   position: fixed;
@@ -2309,7 +2319,7 @@ El resto de las secciones se agregan en la Task 10; por ahora quedan como conten
 <main>
   <section class="certificado" id="certificado">
     <div class="contenedor">
-      <p class="antetitulo" style="color: var(--amarillo-porcontar)">Tu certificado</p>
+      <p class="antetitulo antetitulo--amarillo">Tu certificado</p>
       <h2>Descarga tu certificado aquí</h2>
       <p>Escribe tu nombre completo como aparece en tu documento. Validamos que estés en la lista de asistentes y el certificado se descarga al instante.</p>
 
@@ -2541,7 +2551,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
     <div class="contenedor">
       <p class="antetitulo">Gracias</p>
       <h2>Gracias por estas cuatro horas</h2>
-      <p style="max-width: 62ch">Al equipo de WCS Colombia: gracias por la disposición, por las preguntas incómodas sobre gobernanza de datos y por traer tareas reales al taller. Esto es lo que trabajamos, para que quede a la mano cuando lo necesiten.</p>
+      <p>Al equipo de WCS Colombia: gracias por la disposición, por las preguntas incómodas sobre gobernanza de datos y por traer tareas reales al taller. Esto es lo que trabajamos, para que quede a la mano cuando lo necesiten.</p>
       <div class="cifras" id="lista-cifras"></div>
     </div>
   </section>
@@ -2550,7 +2560,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
     <div class="contenedor">
       <p class="antetitulo">Contenido del taller</p>
       <h2>Esto fue lo que trabajamos</h2>
-      <div class="rejilla rejilla--2" id="lista-modulos" style="margin-top: 2.5rem"></div>
+      <div class="rejilla rejilla--2" id="lista-modulos"></div>
     </div>
   </section>
 
@@ -2559,7 +2569,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
       <p class="antetitulo">Referencia rápida</p>
       <h2>Los seis elementos de un buen prompt</h2>
       <p>La clave no es escribirle mucho a la IA: es darle las piezas correctas para que entienda qué necesitas.</p>
-      <div class="rejilla rejilla--3" id="lista-prompt" style="margin-top: 2.5rem"></div>
+      <div class="rejilla rejilla--3" id="lista-prompt"></div>
     </div>
   </section>
 
@@ -2576,7 +2586,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
       <p class="antetitulo">Panorama</p>
       <h2>El mapa de herramientas</h2>
       <p>No todas resuelven lo mismo. Así se agrupan las que vas a encontrar en tu día a día.</p>
-      <div class="rejilla rejilla--3" id="lista-herramientas" style="margin-top: 2.5rem"></div>
+      <div class="rejilla rejilla--3" id="lista-herramientas"></div>
     </div>
   </section>
 
@@ -2584,8 +2594,8 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
     <div class="contenedor">
       <p class="antetitulo">Para seguir</p>
       <h2>Empieza a usarla mañana</h2>
-      <p style="max-width: 62ch">Elige una sola tarea repetitiva de tu semana y pruébala con lo que vimos: rol, contexto, formato de salida y ejemplos. La constancia importa más que encontrar la herramienta perfecta.</p>
-      <ul id="lista-consejos" style="max-width: 62ch"></ul>
+      <p>Elige una sola tarea repetitiva de tu semana y pruébala con lo que vimos: rol, contexto, formato de salida y ejemplos. La constancia importa más que encontrar la herramienta perfecta.</p>
+      <ul id="lista-consejos"></ul>
     </div>
   </section>
 
@@ -2594,7 +2604,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
       <p class="antetitulo">Guía de recursos</p>
       <h2>Tus regalos</h2>
       <p>Los prompts que quedaron listos para tu trabajo en WCS, y el resumen del taller para guardar.</p>
-      <div class="rejilla rejilla--3" id="lista-descargas" style="margin-top: 2.5rem"></div>
+      <div class="rejilla rejilla--3" id="lista-descargas"></div>
     </div>
   </section>
 
@@ -2603,7 +2613,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
       <p class="antetitulo">Seguí aprendiendo</p>
       <h2>Míranos en Instagram</h2>
       <p>Publicamos casos, prompts y herramientas cada semana en <a href="https://www.instagram.com/por.contar/" target="_blank" rel="noopener">@por.contar</a>.</p>
-      <div class="reels" id="lista-reels" style="margin-top: 2.5rem"></div>
+      <div class="reels" id="lista-reels"></div>
     </div>
   </section>
 </main>
@@ -2613,7 +2623,7 @@ Sustituir el bloque que va desde `<section id="gracias"></section>` hasta `<foot
     <h2>PorContar</h2>
     <p>Ximena Villalobos · Luisa Navarro — Facilitadoras</p>
     <div class="footer__redes" id="lista-redes"></div>
-    <p style="opacity: 0.6; font-size: 0.85rem">Taller realizado para WCS Colombia · 27 de julio de 2026</p>
+    <p class="footer__nota">Taller realizado para WCS Colombia · 27 de julio de 2026</p>
   </div>
 </footer>
 ```
