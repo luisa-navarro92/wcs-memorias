@@ -284,18 +284,22 @@ otro cliente debería ser editar `config.js` y reemplazar dos logos.
 
 ## Assets
 
-Ya entregados:
+Entregados, en `assets/`:
 
-- Firma de Ximena en PNG. Tiene fondo blanco, no transparente; se ubica sobre zona blanca del
-  certificado, así que no hace falta recortarla.
-- Logo de WCS en PNG con fondo transparente. El texto «WCS» del logo es gris claro y pierde
-  contraste sobre marfil: en la landing se usa sobre los bloques en verde oscuro, y en el
-  certificado sobre blanco se evalúa si conviene pedir la versión con el texto en oscuro.
+| Archivo | Formato | Observación |
+| --- | --- | --- |
+| `logo-porcontar.png` | 1200 × 756, ARGB con transparencia | El texto va en negro. Hace falta derivar una variante blanca para los bloques en verde oscuro: se genera en build reemplazando el negro por blanco y conservando el amarillo |
+| `logo-wcs.png` | 360 × 363, PNG indexado con transparencia | Se convierte a ARGB de 32 bits antes de embeberlo, porque jsPDF maneja mal los PNG indexados con transparencia. La resolución alcanza para el tamaño impreso (~25 mm de ancho) |
+| `firma-ximena.png` | 301 × 243, fondo blanco opaco | Se le quita el blanco por umbral en build, para poder ubicarla sobre cualquier fondo. A 45 mm de ancho queda en ~170 ppp: suficiente para una firma, pero si aparece un escaneo de mayor resolución conviene reemplazarla |
 
-Pendientes:
+En `assets/descargas/`: `kit-prompts-wcs.pdf`, `prompt-claude-humano.pdf` y
+`recapitulacion-ia-learn.pdf`.
 
-- Logo de PorContar en PNG (se puede extraer del sitio si no hay original a mano).
+Pendiente:
+
 - Confirmación de Mónica Lozano sobre el uso del logo de WCS en el certificado.
+- Versión del logo de WCS con el texto en oscuro, para que se lea sobre el blanco del
+  certificado. Si no llega, el logo va sin el texto «WCS» o sobre un tono verde de fondo.
 
 ## Pruebas
 
