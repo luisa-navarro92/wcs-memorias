@@ -2276,7 +2276,22 @@ a { color: var(--azul-porcontar); }
 /* El `min()` evita que en una pantalla de 320 px la columna de 300 px
    desborde el ancho del contenedor. */
 .reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
-.reels blockquote { margin: 0 auto; }
+
+/* La tarjeta enmarca tanto el video embebido como el enlace de respaldo. */
+.reel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 1rem;
+  background: var(--blanco-calido);
+  border: 1px solid var(--arena);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+.reel blockquote { margin: 0; text-align: center; }
+.reel iframe { max-width: 100% !important; }
+.glosario dd { max-width: 68ch; }
 
 footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
 footer a { color: var(--blanco-calido); text-decoration: none; }
@@ -2480,7 +2495,14 @@ test('plantillaReel produce el blockquote que espera el script de Instagram', ()
   const html = plantillaReel(REELS[0]);
   assert.match(html, /class="instagram-media"/);
   assert.match(html, /data-instgrm-permalink="https:\/\/www\.instagram\.com\/por\.contar\/reel\/Dad_uTjOEpe\/"/);
-  assert.match(html, /Ver este reel en Instagram/);
+  assert.match(html, /Ver el reel en Instagram/);
+});
+
+test('plantillaReel deja un respaldo utilizable si Instagram no carga', () => {
+  const html = plantillaReel(REELS[2]);
+  assert.match(html, /<article class="reel">/, 'falta la tarjeta que enmarca el reel');
+  assert.match(html, /<a class="boton" href="https:\/\/www\.instagram\.com\/por\.contar\/reel\/DZs-OvoO96n\/"/);
+  assert.match(html, /rel="noopener"/);
 });
 
 test('el HTML deja los contenedores que va a llenar el script', () => {
@@ -2550,11 +2572,18 @@ export function plantillaDescarga(descarga) {
     </article>`;
 }
 
+/**
+ * La tarjeta envuelve al blockquote para que la sección se vea igual de
+ * intencional cuando el script de Instagram no carga: en equipos corporativos
+ * suele estar bloqueado, y sin la tarjeta quedarían enlaces sueltos.
+ */
 export function plantillaReel(url) {
   return `
-    <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14">
-      <a href="${url}" target="_blank" rel="noopener">Ver este reel en Instagram</a>
-    </blockquote>`;
+    <article class="reel">
+      <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14">
+        <a class="boton" href="${url}" target="_blank" rel="noopener">Ver el reel en Instagram</a>
+      </blockquote>
+    </article>`;
 }
 
 function pintar(documento, id, html) {
@@ -2700,7 +2729,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 57 pruebas en total.
+Expected: PASS, 58 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2963,7 +2992,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 63 pruebas en total.
+Expected: PASS, 64 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -3059,7 +3088,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 63 pruebas
+npm test           # 64 pruebas
 npm run servir     # http://localhost:4173
 ```
 
