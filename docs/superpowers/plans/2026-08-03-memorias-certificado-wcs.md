@@ -2847,8 +2847,28 @@ test('enviarSolicitud manda el cuerpo como texto plano para evitar el preflight'
   assert.equal(JSON.parse(opcionesRecibidas.body).cedula, '123456');
 });
 
+test('enviarSolicitud no espera para siempre si el servidor no responde', async () => {
+  let abortos = 0;
+  const fetchFalso = (_url, opciones) =>
+    new Promise((_, rechazar) => {
+      opciones.signal.addEventListener('abort', () => {
+        abortos += 1;
+        rechazar(new Error('la solicitud se abortó por tiempo'));
+      });
+    });
+
+  await assert.rejects(
+    enviarSolicitud(
+      { nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true },
+      { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0, limiteMs: 20 }
+    ),
+    /tiempo/
+  );
+  assert.equal(abortos, 3, 'debería abortar cada uno de los tres intentos');
+});
+
 test('hay un mensaje para cada estado que puede devolver el backend', () => {
-  for (const estado of ['aprobado', 'repetida', 'pendiente', 'error']) {
+  for (const estado of ['aprobado', 'repetida', 'pendiente', 'error', 'pdf']) {
     assert.ok(MENSAJES[estado], `falta el mensaje de ${estado}`);
   }
 });
@@ -2884,6 +2904,12 @@ export const MENSAJES = {
   error: {
     clase: 'estado--error',
     texto: 'No pudimos generar tu certificado en este momento. Intentá de nuevo en un minuto o escribinos a info.porcontar@gmail.com.',
+  },
+  // El registro quedó hecho pero el PDF no se pudo armar: no es lo mismo que
+  // un fallo de red, y la persona necesita saber que su solicitud sí llegó.
+  pdf: {
+    clase: 'estado--aviso',
+    texto: 'Registramos tu solicitud, pero no pudimos armar el PDF en este navegador. Intentá de nuevo, o escribinos a info.porcontar@gmail.com y te lo enviamos.',
   },
 };
 
@@ -2922,20 +2948,29 @@ export async function enviarSolicitud(datos, opciones = {}) {
   const peticion = opciones.fetch || globalThis.fetch;
   const url = opciones.url || BACKEND.url;
   const esperaMs = opciones.esperaMs ?? 1200;
+  // Sin límite de tiempo, un Apps Script que no responde deja el botón
+  // deshabilitado para siempre y la persona sin saber qué pasó.
+  const limiteMs = opciones.limiteMs ?? 20000;
   let ultimoError;
 
   for (let intento = 1; intento <= 3; intento++) {
+    const control = new AbortController();
+    const reloj = setTimeout(() => control.abort(), limiteMs);
+
     try {
       const respuesta = await peticion(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(datos),
+        signal: control.signal,
       });
       if (!respuesta.ok) throw new Error(`El servidor respondió ${respuesta.status}`);
       return await respuesta.json();
     } catch (error) {
       ultimoError = error;
       if (intento < 3) await dormir(esperaMs * intento);
+    } finally {
+      clearTimeout(reloj);
     }
   }
 
@@ -2974,7 +3009,13 @@ function conectarFormulario(documento) {
       const respuesta = await enviarSolicitud(datos);
 
       if (respuesta.estado === 'aprobado') {
-        await descargarCertificado(datos);
+        try {
+          await descargarCertificado(datos);
+        } catch {
+          // La descarga ya quedó registrada: distinguirlo de un fallo de red.
+          mostrarEstado(caja, 'pdf');
+          return;
+        }
         mostrarEstado(caja, respuesta.tipo === 'repetida' ? 'repetida' : 'aprobado');
         formulario.reset();
       } else if (respuesta.estado === 'pendiente') {
@@ -3000,7 +3041,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 64 pruebas en total.
+Expected: PASS, 65 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -3096,7 +3137,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 64 pruebas
+npm test           # 65 pruebas
 npm run servir     # http://localhost:4173
 ```
 
