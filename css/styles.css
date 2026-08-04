@@ -93,6 +93,13 @@ a { color: var(--azul-porcontar); }
   color: var(--blanco-calido);
   border: 1.5px solid rgba(251, 248, 242, 0.4);
 }
+/* Misma especificidad que .boton:hover (una clase + :hover): al ir después
+   en el archivo gana el empate y el botón secundario no se pone azul sólido. */
+.boton-secundario:hover {
+  background: transparent;
+  border-color: rgba(251, 248, 242, 0.75);
+  transform: translateY(-2px);
+}
 
 /* Hero */
 .hero {
@@ -217,7 +224,7 @@ a { color: var(--azul-porcontar); }
 }
 
 .glosario dt { font-family: var(--display); font-weight: 600; margin-top: 1.2rem; }
-.glosario dd { margin: 0.2rem 0 0; color: #5b6479; }
+.glosario dd { margin: 0.2rem 0 0; color: #5b6479; max-width: 68ch; }
 
 .descarga {
   display: flex;
@@ -254,7 +261,6 @@ a { color: var(--azul-porcontar); }
 /* Cuando el script procesa el reel le cambia la clase al blockquote. Ahí el
    enlace de respaldo sobra: el video ya se ve. */
 .reel .instagram-media-registered .boton { display: none; }
-.glosario dd { max-width: 68ch; }
 
 footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
 footer a { color: var(--blanco-calido); text-decoration: none; }

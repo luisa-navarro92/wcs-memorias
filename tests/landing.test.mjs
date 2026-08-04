@@ -59,3 +59,22 @@ test('la página declara idioma español y viewport responsive', () => {
   assert.match(html, /<html lang="es">/);
   assert.match(html, /name="viewport"[^>]+width=device-width/);
 });
+
+test('.boton-secundario:hover se declara después de .boton:hover y conserva el fondo transparente', () => {
+  // Misma especificidad que .boton:hover (una clase + :hover): si esta regla
+  // no aparece después en el archivo, pierde el empate y el botón secundario
+  // del hero se pone azul sólido al pasar el mouse.
+  const posicionBotonHover = css.indexOf('.boton:hover');
+  const posicionSecundarioHover = css.indexOf('.boton-secundario:hover');
+  assert.ok(posicionSecundarioHover > -1, 'falta la regla .boton-secundario:hover');
+  assert.ok(posicionSecundarioHover > posicionBotonHover, '.boton-secundario:hover debe ir después de .boton:hover');
+
+  const bloque = css.slice(posicionSecundarioHover, css.indexOf('}', posicionSecundarioHover));
+  assert.match(bloque, /background:\s*transparent/, 'el botón secundario no debería ponerse azul sólido en hover');
+});
+
+test('la regla .glosario dd con max-width no está duplicada', () => {
+  const coincidencias = [...css.matchAll(/\.glosario dd\s*\{[^}]*max-width:\s*68ch/g)];
+  assert.equal(coincidencias.length, 1, 'la regla .glosario dd { max-width: 68ch } debería declararse una sola vez');
+  assert.ok(!css.includes('.reel .instagram-media-registered .boton { display: none; }\n.glosario dd'), 'no debería quedar una regla de glosario suelta en medio del bloque de reels');
+});
