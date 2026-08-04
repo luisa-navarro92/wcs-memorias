@@ -89,12 +89,12 @@ export const GLOSARIO = [
   { termino: 'Context engineering', definicion: 'Preparar de antemano todo lo que la IA tiene disponible antes de pedirle algo: documentos, memoria, herramientas conectadas.' },
   { termino: 'Loop engineering', definicion: 'Cuando el contexto es tan sólido que el modelo corrige sus propios resultados en ciclos, sin que intervengas en cada paso.' },
   { termino: 'Modelo', definicion: 'El motor que corre por dentro de una herramienta (por ejemplo Sonnet dentro de Claude); elegir bien el modelo cambia el resultado.' },
-  { termino: 'Proyectos (Claude)', definicion: 'Carpeta que agrupa conversaciones de un mismo tema, con documentos e instrucciones fijas.' },
-  { termino: 'Artefactos', definicion: 'El panel donde vive lo que construyes con la IA: documentos, páginas, diagramas. Se edita y se reutiliza.' },
-  { termino: 'Skills', definicion: 'Instrucciones guardadas que le enseñan a la IA a repetir una tarea siempre de la misma forma, a tu manera.' },
+  { termino: 'Claude', definicion: 'La IA de Anthropic. Se destaca en documentos largos, PDFs y hojas de cálculo, y permite guardar proyectos con instrucciones fijas.' },
+  { termino: 'Gemini', definicion: 'La IA de Google, integrada con Gmail, Drive, Documentos y Calendar, así que puede trabajar sobre tus propios archivos.' },
+  { termino: 'ChatGPT', definicion: 'La IA de OpenAI, la más extendida. Fuerte en redacción, síntesis, ideación y generación de imágenes.' },
+  { termino: 'GEM (Gemini)', definicion: 'Un asistente personalizado dentro de Gemini, con sus instrucciones y su comportamiento propios, que puedes compartir con tu equipo.' },
+  { termino: 'Notebook LM', definicion: 'Herramienta de Google para trabajar solo a partir de las fuentes que tú le das: resúmenes, mapas mentales y preguntas sobre tus documentos.' },
   { termino: 'Conector', definicion: 'La integración que le permite a la IA leer y actuar sobre herramientas reales: correo, calendario, CRM.' },
-  { termino: 'GEM (Gemini)', definicion: 'Un asistente personalizado dentro de Gemini, con instrucciones y comportamiento propios.' },
-  { termino: 'Notebook LM', definicion: 'Herramienta de Google para trabajar a partir de tus propias fuentes: resúmenes, mapas mentales, preguntas.' },
 ];
 
 export const HERRAMIENTAS = [
