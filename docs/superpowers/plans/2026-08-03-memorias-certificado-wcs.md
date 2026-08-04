@@ -965,6 +965,21 @@ test('aBlanco convierte el negro en blanco y respeta el amarillo', () => {
   assert.equal(pixel(resultado, 2)[3], 0, 'los píxeles transparentes siguen transparentes');
 });
 
+test('aBlanco conserva los puntos que viven dentro del globo amarillo', () => {
+  // amarillo · blanco · punto negro · blanco · amarillo
+  const resultado = aBlanco(
+    pngDe([
+      [255, 244, 1, 255],
+      [255, 255, 255, 255],
+      [0, 0, 0, 255],
+      [255, 255, 255, 255],
+      [255, 244, 1, 255],
+    ])
+  );
+
+  assert.deepEqual(pixel(resultado, 2), [0, 0, 0, 255], 'el punto del globo no se blanquea');
+});
+
 test('quitarFondoBlanco deja transparente el blanco y opaco el trazo', () => {
   const resultado = quitarFondoBlanco(pngDe([[255, 255, 255, 255], [30, 30, 30, 255]]));
 
@@ -986,10 +1001,31 @@ test('main genera los tres archivos listos para usar', () => {
 
   const wcs = PNG.sync.read(readFileSync('assets/generados/logo-wcs.png'));
   assert.equal(wcs.colorType, 6, 'el logo de WCS debe quedar en RGBA de 8 bits por canal');
+  assert.equal(wcs.data[3], 0, 'el fondo blanco del logo de WCS debe quedar transparente');
+  const opacosWcs = contarOpacos(wcs);
+  assert.ok(opacosWcs > 5000, `el logo de WCS quedó casi vacío: ${opacosWcs} píxeles opacos`);
 
   const firma = PNG.sync.read(readFileSync('assets/generados/firma-ximena.png'));
   assert.equal(firma.data[3], 0, 'la esquina de la firma debe quedar transparente');
+  assert.ok(contarOpacos(firma) > 500, 'la firma quedó borrada');
+
+  const logo = PNG.sync.read(readFileSync('assets/generados/logo-porcontar-blanco.png'));
+  assert.ok(contarNegros(logo) > 1000, 'los tres puntos del globo se perdieron al blanquear el logo');
 });
+
+function contarOpacos(png) {
+  let total = 0;
+  for (let i = 3; i < png.data.length; i += 4) if (png.data[i] > 200) total++;
+  return total;
+}
+
+function contarNegros(png) {
+  let total = 0;
+  for (let i = 0; i < png.data.length; i += 4) {
+    if (png.data[i + 3] > 200 && png.data[i] < 60 && png.data[i + 1] < 60 && png.data[i + 2] < 60) total++;
+  }
+  return total;
+}
 ```
 
 - [ ] **Step 2: Correr las pruebas y verificar que fallan**
@@ -1014,15 +1050,54 @@ export function luminancia(r, g, b) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** Reemplaza los píxeles oscuros por blanco, para usar el logo sobre fondos verdes. */
+function esAmarillo(r, g, b) {
+  return r > 200 && g > 180 && b < 120;
+}
+
+/**
+ * Para cada fila, la primera y la última columna con amarillo: el contorno del globo.
+ * Devuelve [-1, -1] en las filas donde no hay globo.
+ */
+export function limitesDelGlobo(png) {
+  const limites = [];
+  for (let y = 0; y < png.height; y++) {
+    let primera = -1;
+    let ultima = -1;
+    for (let x = 0; x < png.width; x++) {
+      const i = (png.width * y + x) * 4;
+      if (png.data[i + 3] > 0 && esAmarillo(png.data[i], png.data[i + 1], png.data[i + 2])) {
+        if (primera === -1) primera = x;
+        ultima = x;
+      }
+    }
+    limites.push([primera, ultima]);
+  }
+  return limites;
+}
+
+/**
+ * Vuelve blancos los píxeles oscuros, para usar el logo sobre fondos verdes.
+ * Los tres puntos del globo quedan encerrados por el contorno amarillo y viven
+ * sobre el interior blanco: si se blanquearan, desaparecerían. Por eso todo lo
+ * que esté entre el borde izquierdo y el derecho del globo se deja intacto.
+ */
 export function aBlanco(png, umbral = 90) {
-  for (let i = 0; i < png.data.length; i += 4) {
-    if (png.data[i + 3] === 0) continue;
-    const lum = luminancia(png.data[i], png.data[i + 1], png.data[i + 2]);
-    if (lum < umbral) {
-      png.data[i] = 255;
-      png.data[i + 1] = 255;
-      png.data[i + 2] = 255;
+  const limites = limitesDelGlobo(png);
+
+  for (let y = 0; y < png.height; y++) {
+    const [primera, ultima] = limites[y];
+    for (let x = 0; x < png.width; x++) {
+      const i = (png.width * y + x) * 4;
+      if (png.data[i + 3] === 0) continue;
+
+      const dentroDelGlobo = primera !== -1 && x > primera && x < ultima;
+      if (dentroDelGlobo) continue;
+
+      if (luminancia(png.data[i], png.data[i + 1], png.data[i + 2]) < umbral) {
+        png.data[i] = 255;
+        png.data[i + 1] = 255;
+        png.data[i + 2] = 255;
+      }
     }
   }
   return png;
@@ -1056,7 +1131,8 @@ export function main() {
 
   escribir(aBlanco(leer('logo-porcontar.png')), 'logo-porcontar-blanco.png');
   escribir(quitarFondoBlanco(leer('firma-ximena.png')), 'firma-ximena.png');
-  escribir(leer('logo-wcs.png'), 'logo-wcs.png');
+  // El original de WCS viene indexado y con fondo blanco opaco, no transparente.
+  escribir(quitarFondoBlanco(leer('logo-wcs.png')), 'logo-wcs.png');
 
   console.log('Imágenes listas en', SALIDA);
 }
@@ -1072,7 +1148,7 @@ Expected: imprime "Imágenes listas en assets/generados". Abrir los tres PNG y c
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 29 pruebas en total.
+Expected: PASS, 31 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1206,7 +1282,7 @@ Expected: imprime los tamaños de las dos fuentes (alrededor de 150 KB cada una)
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 31 pruebas en total.
+Expected: PASS, 33 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1465,7 +1541,7 @@ export const REDES = [
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 36 pruebas en total.
+Expected: PASS, 38 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1713,7 +1789,7 @@ export async function descargarCertificado(datos) {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 42 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
+Expected: PASS, 44 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
 
 - [ ] **Step 5: Generar un certificado de muestra y revisarlo a ojo**
 
@@ -2187,7 +2263,7 @@ createServer(async (peticion, respuesta) => {
 - [ ] **Step 6: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 47 pruebas en total.
+Expected: PASS, 49 pruebas en total.
 
 - [ ] **Step 7: Revisión visual**
 
@@ -2421,7 +2497,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 52 pruebas en total.
+Expected: PASS, 54 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2684,7 +2760,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 58 pruebas en total.
+Expected: PASS, 60 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -2780,7 +2856,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 58 pruebas
+npm test           # 60 pruebas
 npm run servir     # http://localhost:4173
 ```
 
