@@ -37,6 +37,14 @@ body {
 
 section { padding: 5rem 0; }
 
+/* Los párrafos sueltos de cada sección no deben pasar de una línea legible. */
+.contenedor > p,
+.contenedor > ul { max-width: 68ch; }
+
+section .rejilla,
+section .reels,
+section .glosario { margin-top: 2.5rem; }
+
 .seccion-oscura {
   background: var(--verde-bosque);
   color: var(--blanco-calido);
@@ -53,6 +61,7 @@ section { padding: 5rem 0; }
 }
 
 .seccion-oscura .antetitulo { color: var(--teal); }
+.antetitulo--amarillo { color: var(--amarillo-porcontar); }
 
 h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0 0 1rem; }
 h1 { font-size: clamp(2.4rem, 5.5vw, 4rem); font-weight: 700; }
@@ -224,6 +233,7 @@ footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 
 footer a { color: var(--blanco-calido); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 .footer__redes { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 2rem 0; }
+.footer__nota { opacity: 0.6; font-size: 0.85rem; }
 
 .boton-flotante {
   position: fixed;
