@@ -1,5 +1,5 @@
 /** Pinta las secciones de contenido a partir de config.js. */
-import { MODULOS, ELEMENTOS_PROMPT, GLOSARIO, HERRAMIENTAS, CONSEJOS, DESCARGAS, REELS, REDES, EVALUACION } from './config.js';
+import { MODULOS, ELEMENTOS_PROMPT, GLOSARIO, HERRAMIENTAS, DESCARGAS, REELS, REDES, EVALUACION } from './config.js';
 
 export function plantillaModulo(modulo) {
   const etiquetas = modulo.etiquetas.map((e) => `<span class="etiqueta">${e}</span>`).join('');
@@ -106,7 +106,6 @@ export function pintarMemorias(documento) {
       <p class="antetitulo">${grupo.grupo}</p>
       ${grupo.items.map((i) => `<h3>${i.nombre}</h3><p>${i.para}</p>`).join('')}
     </article>`).join(''));
-  pintar(documento, 'lista-consejos', CONSEJOS.map((c) => `<li>${c}</li>`).join(''));
   pintar(documento, 'lista-descargas', DESCARGAS.map(plantillaDescarga).join(''));
   pintar(documento, 'lista-reels', REELS.map(plantillaReel).join(''));
   pintar(documento, 'lista-redes', REDES.map((r) => `<a href="${r.url}" target="_blank" rel="noopener">${r.nombre} · ${r.usuario}</a>`).join(''));

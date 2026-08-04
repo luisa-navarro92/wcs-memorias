@@ -36,7 +36,7 @@ test('plantillaReel deja un respaldo utilizable si Instagram no carga', () => {
 
 test('el HTML deja los contenedores que va a llenar el script', () => {
   const html = readFileSync('index.html', 'utf8');
-  for (const id of ['lista-modulos', 'lista-prompt', 'lista-glosario', 'lista-herramientas', 'lista-consejos', 'lista-descargas', 'lista-reels', 'lista-redes', 'lista-cifras']) {
+  for (const id of ['lista-modulos', 'lista-prompt', 'lista-glosario', 'lista-herramientas', 'lista-descargas', 'lista-reels', 'lista-redes', 'lista-cifras']) {
     assert.ok(html.includes(`id="${id}"`), `falta el contenedor ${id}`);
   }
 });
@@ -46,7 +46,7 @@ test('pintarMemorias llena todos los contenedores que declara el HTML', () => {
   // uno de los dos, la sección quedaría vacía en silencio.
   const html = readFileSync('index.html', 'utf8');
   const ids = [...html.matchAll(/id="(lista-[^"]+)"/g)].map((coincidencia) => coincidencia[1]);
-  assert.ok(ids.length >= 9, `se esperaban al menos 9 contenedores, hay ${ids.length}`);
+  assert.ok(ids.length >= 8, `se esperaban al menos 8 contenedores, hay ${ids.length}`);
 
   const nodos = new Map(ids.map((id) => [id, { innerHTML: '' }]));
   const documentoFalso = {

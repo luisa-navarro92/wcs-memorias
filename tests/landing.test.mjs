@@ -6,7 +6,7 @@ const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('css/styles.css', 'utf8');
 
 test('la landing declara todas las secciones en el orden acordado', () => {
-  const orden = ['hero', 'certificado', 'gracias', 'modulos', 'prompt', 'glosario', 'herramientas', 'consejos', 'regalos', 'instagram'];
+  const orden = ['hero', 'certificado', 'gracias', 'modulos', 'prompt', 'glosario', 'herramientas', 'regalos', 'instagram'];
   let posicion = -1;
   for (const id of orden) {
     const nueva = html.indexOf(`id="${id}"`);

@@ -118,13 +118,6 @@ export const HERRAMIENTAS = [
   },
 ];
 
-export const CONSEJOS = [
-  'Empieza pequeño: una tarea, no todo el proceso de una vez.',
-  'Verifica siempre lo que la IA te entrega antes de usarlo.',
-  'Protege la información sensible de la empresa y de tus clientes.',
-  'Comparte con tu equipo lo que te funcionó, no solo lo que aprendiste.',
-];
-
 export const DESCARGAS = [
   {
     titulo: 'Kit de 3 prompts · línea editorial WCS Colombia',
