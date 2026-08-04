@@ -31,7 +31,6 @@ export function leerFormulario(campos) {
   return {
     nombre: String(campos.get('nombre') || '').trim().replace(/\s+/g, ' '),
     cedula: String(campos.get('cedula') || '').replace(/\D/g, ''),
-    correo: String(campos.get('correo') || '').trim().toLowerCase(),
     autoriza: Boolean(campos.get('autoriza')),
   };
 }
@@ -60,9 +59,6 @@ export function validarEnCliente(datos) {
   }
   if (!/^\d{6,12}$/.test(datos.cedula)) {
     return { campo: 'cedula', mensaje: 'La cédula debe tener entre 6 y 12 dígitos.' };
-  }
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(datos.correo)) {
-    return { campo: 'correo', mensaje: 'Escribe un correo electrónico válido.' };
   }
   if (!datos.autoriza) {
     return { campo: 'autoriza', mensaje: 'Necesitamos tu autorización para el tratamiento de tus datos.' };
@@ -117,7 +113,7 @@ function mostrarEstado(caja, variante, textoExtra) {
 }
 
 // Campos que puede señalar validarEnCliente, en el mismo orden que sus reglas.
-const CAMPOS_VALIDABLES = ['nombre', 'cedula', 'correo', 'autoriza'];
+const CAMPOS_VALIDABLES = ['nombre', 'cedula', 'autoriza'];
 
 function limpiarInvalidos(formulario) {
   for (const id of CAMPOS_VALIDABLES) {

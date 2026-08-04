@@ -10,7 +10,6 @@ function datosValidos(extra = {}) {
   return {
     nombre: 'Carlos Andrés Ríos Franco',
     cedula: '1032456789',
-    correo: 'crios@wcs.org',
     autoriza: true,
     ...extra,
   };
@@ -62,10 +61,6 @@ test('validarDatos exige cédula de 6 a 12 dígitos', () => {
   assert.equal(validarDatos(datosValidos({ cedula: '1.032.456.789' })), null);
 });
 
-test('validarDatos exige correo con formato válido', () => {
-  assert.match(validarDatos(datosValidos({ correo: 'no-es-correo' })), /correo/i);
-});
-
 test('validarDatos exige la autorización de datos', () => {
   assert.match(validarDatos(datosValidos({ autoriza: false })), /autoriza/i);
 });
@@ -100,10 +95,10 @@ test('procesarSolicitud deja pendiente a quien no está en la lista y avisa', ()
 
 test('procesarSolicitud rechaza datos inválidos sin tocar el repositorio', () => {
   const repo = repoFalso();
-  const resultado = procesarSolicitud(datosValidos({ correo: 'malo' }), repo);
+  const resultado = procesarSolicitud(datosValidos({ cedula: '123' }), repo);
 
   assert.equal(resultado.estado, 'error');
-  assert.match(resultado.mensaje, /correo/i);
+  assert.match(resultado.mensaje, /cédula/i);
   assert.equal(repo.descargas.length, 0);
   assert.equal(repo.solicitudes.length, 0);
 });

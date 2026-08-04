@@ -7,7 +7,6 @@ test('leerFormulario limpia espacios y normaliza la cédula', () => {
     new Map([
       ['nombre', '  Carlos   Ríos  '],
       ['cedula', '1.032.456.789'],
-      ['correo', ' CRIOS@wcs.org '],
       ['autoriza', 'on'],
     ])
   );
@@ -15,13 +14,12 @@ test('leerFormulario limpia espacios y normaliza la cédula', () => {
   assert.deepEqual(datos, {
     nombre: 'Carlos Ríos',
     cedula: '1032456789',
-    correo: 'crios@wcs.org',
     autoriza: true,
   });
 });
 
 test('validarEnCliente repite las mismas reglas del backend', () => {
-  const base = { nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true };
+  const base = { nombre: 'Carlos Ríos', cedula: '1032456789', autoriza: true };
   assert.equal(validarEnCliente(base), null);
 
   const nombreVacio = validarEnCliente({ ...base, nombre: '' });
@@ -40,17 +38,13 @@ test('validarEnCliente repite las mismas reglas del backend', () => {
   assert.equal(cedulaInvalida.campo, 'cedula');
   assert.match(cedulaInvalida.mensaje, /cédula/i);
 
-  const correoInvalido = validarEnCliente({ ...base, correo: 'nope' });
-  assert.equal(correoInvalido.campo, 'correo');
-  assert.match(correoInvalido.mensaje, /correo/i);
-
   const sinAutorizar = validarEnCliente({ ...base, autoriza: false });
   assert.equal(sinAutorizar.campo, 'autoriza');
   assert.match(sinAutorizar.mensaje, /autoriza/i);
 });
 
 test('validarEnCliente usa la misma regla de tokens y conectores que apps-script/Matcher.gs', () => {
-  const base = { cedula: '1032456789', correo: 'c@wcs.org', autoriza: true };
+  const base = { cedula: '1032456789', autoriza: true };
 
   // Caso de iniciales que la dueña del proyecto decidió aceptar: el navegador
   // ya no debe rechazarlo aunque solo tenga una letra en el primer token.
@@ -71,7 +65,7 @@ test('enviarSolicitud reintenta y termina devolviendo la respuesta', async () =>
   };
 
   const respuesta = await enviarSolicitud(
-    { nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true },
+    { nombre: 'Carlos Ríos', cedula: '1032456789', autoriza: true },
     { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0 }
   );
 
@@ -87,7 +81,7 @@ test('enviarSolicitud se rinde después de tres intentos', async () => {
   };
 
   await assert.rejects(
-    enviarSolicitud({ nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true }, { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0 }),
+    enviarSolicitud({ nombre: 'Carlos Ríos', cedula: '1032456789', autoriza: true }, { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0 }),
     /red caída/
   );
   assert.equal(intentos, 3);
@@ -100,7 +94,7 @@ test('enviarSolicitud manda el cuerpo como texto plano para evitar el preflight'
     return { ok: true, json: async () => ({ estado: 'pendiente' }) };
   };
 
-  await enviarSolicitud({ nombre: 'A B', cedula: '123456', correo: 'a@b.co', autoriza: true }, { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0 });
+  await enviarSolicitud({ nombre: 'A B', cedula: '123456', autoriza: true }, { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0 });
 
   assert.equal(opcionesRecibidas.method, 'POST');
   assert.equal(opcionesRecibidas.headers['Content-Type'], 'text/plain;charset=utf-8');
@@ -119,7 +113,7 @@ test('enviarSolicitud no espera para siempre si el servidor no responde', async 
 
   await assert.rejects(
     enviarSolicitud(
-      { nombre: 'Carlos Ríos', cedula: '1032456789', correo: 'c@wcs.org', autoriza: true },
+      { nombre: 'Carlos Ríos', cedula: '1032456789', autoriza: true },
       { fetch: fetchFalso, url: 'https://ejemplo', esperaMs: 0, limiteMs: 20 }
     ),
     /tiempo/

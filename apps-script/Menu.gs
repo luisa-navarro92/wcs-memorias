@@ -18,12 +18,11 @@ function construirAprobaciones(filas, primeraFila, cantidad) {
     if (numeroFila < 2 || numeroFila > filas.length) continue;
 
     var fila = filas[numeroFila - 1];
-    if (String(fila[4]).trim() !== 'Pendiente') continue;
+    if (String(fila[3]).trim() !== 'Pendiente') continue;
 
     aprobaciones.push({
       fila: numeroFila,
       nombre: String(fila[1]).trim(),
-      correo: String(fila[3]).trim(),
     });
   }
 
@@ -53,35 +52,15 @@ function aprobarSeleccionados() {
   }
 
   var asistentes = libro.getSheetByName('Asistentes');
-  var fallosAviso = 0;
 
   for (var i = 0; i < aprobaciones.length; i++) {
     var aprobacion = aprobaciones[i];
     asistentes.appendRow([aprobacion.nombre, 'Aprobado manual', new Date()]);
-    hoja.getRange(aprobacion.fila, 5).setValue('Aprobado');
-
-    try {
-      MailApp.sendEmail({
-        to: aprobacion.correo,
-        subject: 'Tu certificado del taller IA Learn ya está disponible',
-        body:
-          'Hola ' + aprobacion.nombre + ',\n\n' +
-          'Ya validamos tu participación en el taller IA Learn: Inteligencia Artificial ' +
-          'para la Productividad. Vuelve al enlace de las memorias y descarga tu certificado ' +
-          'con los mismos datos que ingresaste.\n\n' +
-          'Ximena Villalobos y Luisa Navarro\nPorContar',
-      });
-    } catch (error) {
-      fallosAviso++;
-    }
+    hoja.getRange(aprobacion.fila, 4).setValue('Aprobado');
   }
 
-  if (fallosAviso === 0) {
-    ui.alert('Listo: ' + aprobaciones.length + ' solicitud(es) aprobada(s).');
-  } else {
-    ui.alert(
-      'Se aprobaron ' + aprobaciones.length + ' solicitud(es), pero no se pudo avisar por correo a ' +
-      fallosAviso + ' persona(s). Revisa la hoja Asistentes: quedaron aprobadas igual.'
-    );
-  }
+  ui.alert(
+    'Listo: ' + aprobaciones.length + ' solicitud(es) aprobada(s). ' +
+    'Como el sistema ya no guarda el correo de estas personas, avísales por otro medio que su certificado está listo.'
+  );
 }

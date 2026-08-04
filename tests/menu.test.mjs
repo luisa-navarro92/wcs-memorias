@@ -7,7 +7,6 @@ const { construirAprobaciones } = cargarGs(['Menu.gs'], { exportar: ['construirA
 function entornoAprobacion(filasSolicitudes) {
   const asistentesFilas = [];
   const alertas = [];
-  const correosEnviados = [];
 
   const hojaSolicitudes = {
     getName: () => 'Solicitudes',
@@ -30,15 +29,9 @@ function entornoAprobacion(filasSolicitudes) {
       getUi: () => ({ alert: (mensaje) => alertas.push(mensaje) }),
       getActiveSpreadsheet: () => libro,
     },
-    MailApp: {
-      sendEmail: (opciones) => {
-        if (opciones.to === 'falla@wcs.org') throw new Error('cuota de Gmail agotada');
-        correosEnviados.push(opciones);
-      },
-    },
   };
 
-  return { filasSolicitudes, asistentesFilas, alertas, correosEnviados, globales };
+  return { filasSolicitudes, asistentesFilas, alertas, globales };
 }
 
 function correrAprobacion(globales) {
@@ -47,24 +40,24 @@ function correrAprobacion(globales) {
 }
 
 const filas = [
-  ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
-  ['2026-08-03', 'Silvia Alvarez', '52123456', 'salvarez@wcs.org', 'Pendiente'],
-  ['2026-08-03', 'Leonor Valenzuela', '41234567', 'lvalenzuela@wcs.org', 'Aprobado'],
-  ['2026-08-03', 'Catalina Gutiérrez', '1010101010', 'cgutierrez@wcs.org', 'Pendiente'],
+  ['Marca temporal', 'Nombre', 'Cédula', 'Estado'],
+  ['2026-08-03', 'Silvia Alvarez', '52123456', 'Pendiente'],
+  ['2026-08-03', 'Leonor Valenzuela', '41234567', 'Aprobado'],
+  ['2026-08-03', 'Catalina Gutiérrez', '1010101010', 'Pendiente'],
 ];
 
 test('construirAprobaciones toma solo las filas seleccionadas que están pendientes', () => {
   const resultado = construirAprobaciones(filas, 2, 3);
 
   assert.deepEqual(resultado, [
-    { fila: 2, nombre: 'Silvia Alvarez', correo: 'salvarez@wcs.org' },
-    { fila: 4, nombre: 'Catalina Gutiérrez', correo: 'cgutierrez@wcs.org' },
+    { fila: 2, nombre: 'Silvia Alvarez' },
+    { fila: 4, nombre: 'Catalina Gutiérrez' },
   ]);
 });
 
 test('construirAprobaciones ignora la cabecera si queda dentro de la selección', () => {
   assert.deepEqual(construirAprobaciones(filas, 1, 2), [
-    { fila: 2, nombre: 'Silvia Alvarez', correo: 'salvarez@wcs.org' },
+    { fila: 2, nombre: 'Silvia Alvarez' },
   ]);
 });
 
@@ -75,42 +68,55 @@ test('construirAprobaciones devuelve vacío si no hay pendientes', () => {
 test('construirAprobaciones no se sale del rango si la selección pasa del último dato', () => {
   // Caso real: seleccionar la columna entera en el Sheet.
   assert.deepEqual(construirAprobaciones(filas, 3, 100), [
-    { fila: 4, nombre: 'Catalina Gutiérrez', correo: 'cgutierrez@wcs.org' },
+    { fila: 4, nombre: 'Catalina Gutiérrez' },
   ]);
   assert.deepEqual(construirAprobaciones(filas, 50, 10), []);
 });
 
-test('aprobarSeleccionados sigue con el resto del lote si un correo falla y avisa cuántos fallaron', () => {
+test('aprobarSeleccionados aprueba todo el lote y avisa que hay que notificar por otro medio', () => {
   const ent = entornoAprobacion([
-    ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
-    ['2026-08-03', 'Silvia Alvarez', '52123456', 'falla@wcs.org', 'Pendiente'],
-    ['2026-08-03', 'Catalina Gutiérrez', '1010101010', 'cgutierrez@wcs.org', 'Pendiente'],
+    ['Marca temporal', 'Nombre', 'Cédula', 'Estado'],
+    ['2026-08-03', 'Silvia Alvarez', '52123456', 'Pendiente'],
+    ['2026-08-03', 'Catalina Gutiérrez', '1010101010', 'Pendiente'],
   ]);
 
   correrAprobacion(ent.globales);
 
-  // Las dos personas quedan aprobadas aunque el correo de la primera falle.
   assert.equal(ent.asistentesFilas.length, 2);
-  assert.equal(ent.filasSolicitudes[1][4], 'Aprobado');
-  assert.equal(ent.filasSolicitudes[2][4], 'Aprobado');
-  // Solo se envió el correo que no falló.
-  assert.equal(ent.correosEnviados.length, 1);
-  assert.equal(ent.correosEnviados[0].to, 'cgutierrez@wcs.org');
-  // El aviso final dice cuántas se aprobaron y a cuántas no se les pudo avisar.
+  assert.equal(ent.filasSolicitudes[1][3], 'Aprobado');
+  assert.equal(ent.filasSolicitudes[2][3], 'Aprobado');
+
   assert.equal(ent.alertas.length, 1);
   assert.match(ent.alertas[0], /2/);
-  assert.match(ent.alertas[0], /1/);
+  assert.match(ent.alertas[0], /otro medio/i);
 });
 
-test('aprobarSeleccionados no reporta fallos cuando todos los correos se envían bien', () => {
+test('aprobarSeleccionados no hace nada si la hoja activa no es Solicitudes', () => {
   const ent = entornoAprobacion([
-    ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
-    ['2026-08-03', 'Catalina Gutiérrez', '1010101010', 'cgutierrez@wcs.org', 'Pendiente'],
+    ['Marca temporal', 'Nombre', 'Cédula', 'Estado'],
+    ['2026-08-03', 'Catalina Gutiérrez', '1010101010', 'Pendiente'],
+  ]);
+  const hojaOtra = { getName: () => 'Otra' };
+  ent.globales.SpreadsheetApp.getActiveSpreadsheet = () => ({
+    getActiveSheet: () => hojaOtra,
+  });
+
+  correrAprobacion(ent.globales);
+
+  assert.equal(ent.asistentesFilas.length, 0);
+  assert.equal(ent.alertas.length, 1);
+  assert.match(ent.alertas[0], /Solicitudes/);
+});
+
+test('aprobarSeleccionados avisa si no hay pendientes en la selección', () => {
+  const ent = entornoAprobacion([
+    ['Marca temporal', 'Nombre', 'Cédula', 'Estado'],
+    ['2026-08-03', 'Leonor Valenzuela', '41234567', 'Aprobado'],
   ]);
 
   correrAprobacion(ent.globales);
 
-  assert.equal(ent.correosEnviados.length, 1);
-  assert.match(ent.alertas[0], /aprobada/i);
-  assert.doesNotMatch(ent.alertas[0], /no se/i);
+  assert.equal(ent.asistentesFilas.length, 0);
+  assert.equal(ent.alertas.length, 1);
+  assert.match(ent.alertas[0], /no hay solicitudes pendientes/i);
 });

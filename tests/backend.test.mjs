@@ -11,7 +11,7 @@ function hojaFalsa(filas) {
   };
 }
 
-function entorno({ asistentes = [['Nombre', 'Origen', 'Fecha de alta']], descargas = [['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo']], solicitudes = [['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado']] } = {}) {
+function entorno({ asistentes = [['Nombre', 'Origen', 'Fecha de alta']], descargas = [['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Tipo']], solicitudes = [['Marca temporal', 'Nombre', 'Cédula', 'Estado']] } = {}) {
   const hojas = {
     Asistentes: hojaFalsa(asistentes),
     Descargas: hojaFalsa(descargas),
@@ -52,7 +52,6 @@ function llamar(globales, cuerpo) {
 const solicitud = {
   nombre: 'Carlos Andrés Ríos Franco',
   cedula: '1032456789',
-  correo: 'crios@wcs.org',
   autoriza: true,
 };
 
@@ -68,22 +67,22 @@ test('doPost aprueba y escribe una fila en Descargas', () => {
   const fila = ent.hojas.Descargas.filas[1];
   assert.equal(fila[1], 'Carlos Andrés Ríos Franco');
   assert.equal(fila[3], '1032456789');
-  assert.equal(fila[5], 'Primera descarga');
+  assert.equal(fila[4], 'Primera descarga');
 });
 
 test('doPost detecta una descarga repetida por cédula', () => {
   const ent = entorno({
     asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
     descargas: [
-      ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo'],
-      ['2026-08-03', 'Carlos Ríos', 'Carlos Andrés Ríos Franco', '1032456789', 'crios@wcs.org', 'Primera descarga'],
+      ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Tipo'],
+      ['2026-08-03', 'Carlos Ríos', 'Carlos Andrés Ríos Franco', '1032456789', 'Primera descarga'],
     ],
   });
 
   const respuesta = llamar(ent.globales, solicitud);
 
   assert.deepEqual(respuesta, { estado: 'aprobado', tipo: 'repetida' });
-  assert.equal(ent.hojas.Descargas.filas[2][5], 'Repetida');
+  assert.equal(ent.hojas.Descargas.filas[2][4], 'Repetida');
 });
 
 test('doPost deja pendiente a quien no está en la lista y manda correo', () => {
@@ -93,7 +92,7 @@ test('doPost deja pendiente a quien no está en la lista y manda correo', () => 
 
   assert.deepEqual(respuesta, { estado: 'pendiente' });
   assert.equal(ent.hojas.Solicitudes.filas.length, 2);
-  assert.equal(ent.hojas.Solicitudes.filas[1][4], 'Pendiente');
+  assert.equal(ent.hojas.Solicitudes.filas[1][3], 'Pendiente');
   assert.equal(ent.correos.length, 1);
   assert.equal(ent.correos[0].to, 'info.porcontar@gmail.com');
   assert.match(ent.correos[0].body, /Carlos Andrés Ríos Franco/);
@@ -190,8 +189,8 @@ test('doPost sí cuenta como repetida una descarga aprobada de hace más de 120 
   const ent = entorno({
     asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
     descargas: [
-      ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo'],
-      [marcaVieja, 'Carlos Ríos', 'Carlos Andrés Ríos Franco', '1032456789', 'crios@wcs.org', 'Primera descarga'],
+      ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Tipo'],
+      [marcaVieja, 'Carlos Ríos', 'Carlos Andrés Ríos Franco', '1032456789', 'Primera descarga'],
     ],
   });
 
@@ -205,8 +204,8 @@ test('doPost no registra la solicitud pendiente si ya hay una con estado Pendien
   const marcaAhora = new Date().toISOString();
   const ent = entorno({
     solicitudes: [
-      ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
-      [marcaAhora, 'Carlos Andrés Ríos Franco', '1032456789', 'crios@wcs.org', 'Pendiente'],
+      ['Marca temporal', 'Nombre', 'Cédula', 'Estado'],
+      [marcaAhora, 'Carlos Andrés Ríos Franco', '1032456789', 'Pendiente'],
     ],
   });
 
@@ -225,4 +224,23 @@ test('notificarSolicitud ya no incluye la cédula en el cuerpo del correo', () =
   assert.equal(ent.correos.length, 1);
   assert.doesNotMatch(ent.correos[0].body, /1032456789/);
   assert.match(ent.correos[0].body, /Solicitudes/);
+});
+
+test('doPost aprueba una solicitud sin campo correo y escribe las 5 columnas nuevas en orden', () => {
+  const ent = entorno({
+    asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
+  });
+
+  assert.ok(!('correo' in solicitud), 'la solicitud de prueba no debe traer correo');
+
+  const respuesta = llamar(ent.globales, solicitud);
+
+  assert.deepEqual(respuesta, { estado: 'aprobado', tipo: 'primera' });
+  const fila = ent.hojas.Descargas.filas[1];
+  assert.equal(fila.length, 5);
+  assert.ok(fila[0] instanceof Date, 'la primera columna es la marca temporal');
+  assert.equal(fila[1], 'Carlos Andrés Ríos Franco');
+  assert.equal(fila[2], 'Carlos Andrés Ríos Franco');
+  assert.equal(fila[3], '1032456789');
+  assert.equal(fila[4], 'Primera descarga');
 });

@@ -53,7 +53,7 @@ function crearRepositorio() {
     solicitudPendiente: function (cedula) {
       var filas = libro.getSheetByName('Solicitudes').getDataRange().getValues();
       return filas.slice(1).some(function (fila) {
-        return String(fila[2]).replace(/\D/g, '') === cedula && String(fila[4]).trim() === 'Pendiente';
+        return String(fila[2]).replace(/\D/g, '') === cedula && String(fila[3]).trim() === 'Pendiente';
       });
     },
 
@@ -74,7 +74,6 @@ function crearRepositorio() {
         String(datos.nombre).trim(),
         nombreEnLista,
         String(datos.cedula).replace(/\D/g, ''),
-        String(datos.correo).trim(),
         tipo === 'repetida' ? 'Repetida' : 'Primera descarga',
       ]);
     },
@@ -84,7 +83,6 @@ function crearRepositorio() {
         new Date(),
         String(datos.nombre).trim(),
         String(datos.cedula).replace(/\D/g, ''),
-        String(datos.correo).trim(),
         'Pendiente',
       ]);
     },
@@ -95,9 +93,9 @@ function crearRepositorio() {
         subject: 'Certificado IA Learn WCS: solicitud por aprobar',
         body:
           'Alguien pidió su certificado y no aparece en la lista de asistentes.\n\n' +
-          'Nombre: ' + datos.nombre + '\n' +
-          'Correo: ' + datos.correo + '\n\n' +
-          'Revisa la hoja Solicitudes para ver el detalle y aprobarlo desde el menú Certificados.',
+          'Nombre: ' + datos.nombre + '\n\n' +
+          'Revisa la hoja Solicitudes para ver el detalle y aprobarlo desde el menú Certificados. ' +
+          'Como ya no registramos el correo, avisale a esta persona por otro medio cuando la apruebes.',
       });
     },
   };

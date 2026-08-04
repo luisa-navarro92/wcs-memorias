@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { cargarGs } from './ayudas.mjs';
 
 const CABECERAS_ASISTENTES = ['Nombre', 'Origen', 'Fecha de alta'];
-const CABECERAS_DESCARGAS = ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo'];
-const CABECERAS_SOLICITUDES = ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'];
+const CABECERAS_DESCARGAS = ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Tipo'];
+const CABECERAS_SOLICITUDES = ['Marca temporal', 'Nombre', 'Cédula', 'Estado'];
 
 function hojaFalsa(nombre, filas) {
   return {
@@ -34,10 +34,21 @@ function hojaFalsa(nombre, filas) {
         setNumberFormat(formato) {
           self.formatosAplicados.push({ columna, numFilas, numColumnas, formato });
         },
+        clearContent() {
+          const fila0 = fila - 1;
+          const f = self.filas[fila0];
+          if (!f) return;
+          for (let c = 0; c < numColumnas; c++) {
+            f[columna - 1 + c] = '';
+          }
+        },
       };
     },
     setFrozenRows(n) { this.filasCongeladas = n; },
     getLastRow() { return this.filas.length; },
+    getLastColumn() {
+      return this.filas.reduce((max, f) => Math.max(max, f.length), 0);
+    },
     getMaxRows() { return 1000; },
   };
 }
@@ -197,6 +208,28 @@ test('prepararHoja usa Logger.log si no hay interfaz disponible (getUi falla)', 
   assert.equal(ent.alertas.length, 0);
   assert.equal(ent.logs.length, 1);
   assert.match(ent.logs[0], /Asistentes/);
+});
+
+test('prepararHoja limpia las cabeceras sobrantes de la fila 1 cuando la hoja viene del esquema viejo', () => {
+  const descargasVieja = hojaFalsa('Descargas', [
+    ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo'],
+    ['2026-08-03', 'Carlos Ríos', 'Carlos Andrés Ríos Franco', '1032456789', 'crios@wcs.org', 'Primera descarga'],
+  ]);
+  const solicitudesVieja = hojaFalsa('Solicitudes', [
+    ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
+  ]);
+  const asistentes = hojaFalsa('Asistentes', [CABECERAS_ASISTENTES.slice()]);
+  const ent = entorno([asistentes, descargasVieja, solicitudesVieja]);
+
+  correr(ent.globales);
+
+  // Las primeras columnas quedan con el esquema nuevo...
+  assert.deepEqual(descargasVieja.filas[0].slice(0, CABECERAS_DESCARGAS.length), CABECERAS_DESCARGAS);
+  // ...y la cabecera sobrante (la vieja columna Correo, que quedó en la F) no deja texto confuso.
+  assert.equal(descargasVieja.filas[0][CABECERAS_DESCARGAS.length], '');
+
+  assert.deepEqual(solicitudesVieja.filas[0].slice(0, CABECERAS_SOLICITUDES.length), CABECERAS_SOLICITUDES);
+  assert.equal(solicitudesVieja.filas[0][CABECERAS_SOLICITUDES.length], '');
 });
 
 test('prepararHoja toma la primera candidata cuando hay varias hojas con A1 "Nombre"', () => {

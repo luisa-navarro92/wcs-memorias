@@ -12,9 +12,6 @@ function validarDatos(datos) {
   if (!/^\d{6,12}$/.test(cedula)) {
     return 'La cédula debe tener entre 6 y 12 dígitos.';
   }
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(datos.correo == null ? '' : datos.correo))) {
-    return 'Escribe un correo electrónico válido.';
-  }
   if (datos.autoriza !== true) {
     return 'Necesitamos tu autorización para el tratamiento de tus datos.';
   }

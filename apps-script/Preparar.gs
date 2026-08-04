@@ -7,8 +7,8 @@
 
 var ESQUEMA_HOJAS = {
   Asistentes: ['Nombre', 'Origen', 'Fecha de alta'],
-  Descargas: ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo'],
-  Solicitudes: ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
+  Descargas: ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Tipo'],
+  Solicitudes: ['Marca temporal', 'Nombre', 'Cédula', 'Estado'],
 };
 
 var ORDEN_HOJAS = ['Asistentes', 'Descargas', 'Solicitudes'];
@@ -67,6 +67,14 @@ function escribirCabeceras(hoja, cabeceras) {
   rango.setValues([cabeceras]);
   rango.setFontWeight('bold');
   hoja.setFrozenRows(1);
+
+  // Si la hoja venía de un esquema viejo con más columnas (p. ej. el antiguo
+  // "Correo"), la fila 1 puede tener cabeceras sobrantes más allá del nuevo
+  // esquema: hay que borrarlas para que no queden restos confusos.
+  var ultimaColumna = hoja.getLastColumn();
+  if (ultimaColumna > cabeceras.length) {
+    hoja.getRange(1, cabeceras.length + 1, 1, ultimaColumna - cabeceras.length).clearContent();
+  }
 }
 
 function formatearCedulaComoTexto(hoja, cabeceras) {

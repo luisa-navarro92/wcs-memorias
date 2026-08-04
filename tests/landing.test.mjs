@@ -16,13 +16,14 @@ test('la landing declara todas las secciones en el orden acordado', () => {
   }
 });
 
-test('el formulario del certificado trae los cuatro campos y el aviso de datos', () => {
+test('el formulario del certificado trae los tres campos y el aviso de datos', () => {
   assert.match(html, /id="formulario-certificado"/);
-  for (const campo of ['name="nombre"', 'name="cedula"', 'name="correo"', 'name="autoriza"']) {
+  for (const campo of ['name="nombre"', 'name="cedula"', 'name="autoriza"']) {
     assert.ok(html.includes(campo), `falta el campo ${campo}`);
   }
   assert.match(html, /id="estado-certificado"/);
   assert.match(html, /tratamiento de (mis )?datos/i);
+  assert.doesNotMatch(html, /name="correo"/, 'el campo correo ya no debería existir en el formulario');
 });
 
 test('cada campo tiene su etiqueta, los ids no se repiten y el estado se anuncia', () => {
@@ -33,7 +34,7 @@ test('cada campo tiene su etiqueta, los ids no se repiten y el estado se anuncia
     assert.ok(ids.includes(destino), `una etiqueta apunta a #${destino}, que no existe`);
   }
 
-  for (const campo of ['nombre', 'cedula', 'correo']) {
+  for (const campo of ['nombre', 'cedula']) {
     assert.match(html, new RegExp(`<label[^>]*for="${campo}"`), `falta la etiqueta de ${campo}`);
     assert.match(html, new RegExp(`<input[^>]*id="${campo}"`), `falta el campo ${campo}`);
   }
