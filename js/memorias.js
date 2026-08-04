@@ -3,11 +3,12 @@ import { MODULOS, ELEMENTOS_PROMPT, GLOSARIO, HERRAMIENTAS, CONSEJOS, DESCARGAS,
 
 export function plantillaModulo(modulo) {
   const etiquetas = modulo.etiquetas.map((e) => `<span class="etiqueta">${e}</span>`).join('');
+  const puntos = modulo.puntos.map((p) => `<li>${p}</li>`).join('');
   return `
     <article class="tarjeta">
       <p class="antetitulo">Módulo ${modulo.numero}</p>
       <h3>${modulo.titulo}</h3>
-      <p>${modulo.texto}</p>
+      <ul class="tarjeta__puntos">${puntos}</ul>
       <div>${etiquetas}</div>
     </article>`;
 }

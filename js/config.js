@@ -34,37 +34,42 @@ export const MODULOS = [
   {
     numero: '1',
     titulo: 'Fundamentos',
-    texto:
-      'Qué es la IA generativa y cómo llega a una respuesta: entrena con grandes volúmenes de texto, reconoce patrones y construye la respuesta palabra por palabra, ajustada después con revisión humana. A partir de ahí, la idea de pensar el problema completo antes de escribirle a la IA: quién lo va a leer, de dónde sale la información, qué formato necesitas y qué parte de la decisión sigue siendo tuya. Cerramos identificando, cada quien, qué tarea repetitiva de su semana valdría la pena delegar primero.',
+    puntos: [
+      'Qué es la IA generativa y cómo llega a una respuesta.',
+      'Pensar el problema completo antes de escribirle a la IA.',
+      'Identificar qué tarea repetitiva vale la pena delegar primero.',
+    ],
     etiquetas: ['IA generativa', 'Pensamiento sistemático'],
   },
   {
     numero: '2',
     titulo: 'Panorama y modelos',
-    texto:
-      'Un mapa de las herramientas que existen hoy, agrupadas por lo que resuelven: las de uso general (ChatGPT, Gemini, Claude, Copilot), las menos conocidas pero útiles para tareas puntuales, y las de automatización sin código. Con eso, un criterio práctico para elegir el modelo según la tarea: uno rápido y económico para consultas simples, uno equilibrado para el trabajo diario, uno más potente para problemas de varios pasos.',
+    puntos: [
+      'El mapa de herramientas: las de uso general y las menos conocidas.',
+      'Cómo elegir el modelo según la tarea que tengas entre manos.',
+      'Qué cambia entre un modelo rápido y uno más potente.',
+    ],
     etiquetas: ['Mapa de herramientas', 'Elegir el modelo correcto'],
   },
   {
     numero: '3',
     titulo: 'Prompt & context engineering',
-    texto:
-      'Los seis elementos que hacen que un prompt funcione, y la diferencia entre pedirle bien algo a la IA (prompt engineering) y tenerle listo el entorno de trabajo antes de pedírselo (context engineering): documentos de referencia, instrucciones que no hay que repetir cada vez, ejemplos previos, herramientas conectadas y el contexto del negocio. Cada participante armó su primer prompt aplicado a algo de uso diario: un informe, un resumen, un correo o una propuesta comercial.',
+    puntos: [
+      'Los seis elementos que hacen que un prompt funcione.',
+      'La diferencia entre pedir bien y tener listo el entorno de trabajo.',
+      'Cada participante armó su primer prompt aplicado a su día a día.',
+    ],
     etiquetas: ['Los 6 elementos del prompt', 'Context engineering'],
   },
   {
     numero: '4',
     titulo: 'Productividad por herramienta',
-    texto:
-      'Un recorrido práctico por Gemini, ChatGPT y Claude, mirando qué hace mejor cada uno: Gemini por su integración con el ecosistema Google, ChatGPT por sus conectores y tareas programadas, Claude por su manejo de documentos largos, PDFs y hojas de cálculo, además de Proyectos, Artefactos y Skills. Terminamos construyendo, sin escribir código, una primera mini-aplicación funcional.',
+    puntos: [
+      'Gemini, ChatGPT y Claude: qué hace mejor cada uno.',
+      'Proyectos, artefactos y asistentes personalizados.',
+      'Una primera mini-aplicación funcional, sin escribir código.',
+    ],
     etiquetas: ['Gemini', 'ChatGPT', 'Claude'],
-  },
-  {
-    numero: '5',
-    titulo: 'Seguridad, ética y gobernanza',
-    texto:
-      'Reglas simples para un uso responsable, basadas en marcos como NIST AI RMF e ISO/IEC 42001: no compartir información confidencial en herramientas públicas, verificar cualquier resultado antes de usarlo, cuidar los datos personales, revisar sesgos en resultados sobre personas y no delegarle a la IA decisiones de contratación, evaluación o despido.',
-    etiquetas: ['Buenas prácticas', 'Uso responsable'],
   },
 ];
 

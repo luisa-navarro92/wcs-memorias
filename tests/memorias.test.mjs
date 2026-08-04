@@ -4,10 +4,13 @@ import { readFileSync } from 'node:fs';
 import { plantillaModulo, plantillaDescarga, plantillaReel, pintarMemorias } from '../js/memorias.js';
 import { MODULOS, DESCARGAS, REELS } from '../js/config.js';
 
-test('plantillaModulo arma el bloque con número, título, texto y etiquetas', () => {
+test('plantillaModulo arma el bloque con número, título, puntos en lista y etiquetas', () => {
   const html = plantillaModulo(MODULOS[0]);
   assert.match(html, /Fundamentos/);
-  assert.match(html, /IA generativa/);
+  assert.match(html, /<ul[^>]*>/);
+  for (const punto of MODULOS[0].puntos) {
+    assert.ok(html.includes(`<li>${punto}</li>`), `falta el punto "${punto}" como <li>`);
+  }
   assert.match(html, /class="etiqueta"/);
 });
 

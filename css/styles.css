@@ -217,6 +217,31 @@ a { color: var(--azul-porcontar); }
 }
 .cifra span { font-size: 0.95rem; color: #5b6479; }
 
+.tarjeta__puntos {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.tarjeta__puntos li {
+  position: relative;
+  padding-left: 1.1rem;
+  line-height: 1.5;
+}
+.tarjeta__puntos li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+.seccion-oscura .tarjeta__puntos li { color: var(--blanco-calido); }
+
 .etiqueta {
   display: inline-block;
   background: var(--arena);
