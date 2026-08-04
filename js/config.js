@@ -21,7 +21,7 @@ export const TALLER = {
 
 export const BACKEND = {
   // Se reemplaza con la URL del Web App al desplegar Apps Script (Task 13).
-  url: 'REEMPLAZAR_CON_LA_URL_DEL_WEB_APP',
+  url: 'https://script.google.com/macros/s/AKfycbwlWdVL6AWZHnNv0O0eTMn0hac4Zt7ElOzG-agO0CfN4VHAfLflU1ZBebTbqo7p-FwmPw/exec',
 };
 
 export const EVALUACION = [
