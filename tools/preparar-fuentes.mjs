@@ -24,6 +24,15 @@ async function descargar(url) {
   return Buffer.from(await respuesta.arrayBuffer());
 }
 
+/** Las imágenes las produce `npm run assets`, que corre antes que este script. */
+function leerImagen(ruta) {
+  try {
+    return readFileSync(ruta);
+  } catch {
+    throw new Error(`Falta ${ruta}. Corré primero: npm run assets`);
+  }
+}
+
 async function main() {
   mkdirSync('assets/generados', { recursive: true });
   mkdirSync('assets/vendor', { recursive: true });
@@ -40,7 +49,7 @@ async function main() {
   }
 
   for (const [nombre, ruta] of Object.entries(IMAGENES)) {
-    const datos = readFileSync(ruta);
+    const datos = leerImagen(ruta);
     lineas.push(`export const ${nombre} = 'data:image/png;base64,${datos.toString('base64')}';`, '');
   }
 
