@@ -20,18 +20,20 @@ test('plantillaDescarga enlaza al PDF y fuerza la descarga', () => {
   assert.match(html, /download/);
 });
 
-test('plantillaReel produce el blockquote que espera el script de Instagram', () => {
+test('plantillaReel produce un iframe con la URL de embed derivada del código del reel', () => {
   const html = plantillaReel(REELS[0]);
-  assert.match(html, /class="instagram-media"/);
-  assert.match(html, /data-instgrm-permalink="https:\/\/www\.instagram\.com\/por\.contar\/reel\/Dad_uTjOEpe\/"/);
-  assert.match(html, /Ver el reel en Instagram/);
+  assert.match(html, /<article class="reel">/);
+  assert.match(html, /<iframe[^>]+src="https:\/\/www\.instagram\.com\/reel\/Dad_uTjOEpe\/embed\/"/);
+  assert.match(html, /loading="lazy"/);
 });
 
-test('plantillaReel deja un respaldo utilizable si Instagram no carga', () => {
-  const html = plantillaReel(REELS[2]);
+test('plantillaReel deja un respaldo utilizable si la URL no tiene el formato esperado', () => {
+  const urlSinFormato = 'https://www.instagram.com/por.contar/';
+  const html = plantillaReel(urlSinFormato);
   assert.match(html, /<article class="reel">/, 'falta la tarjeta que enmarca el reel');
-  assert.match(html, /<a class="boton" href="https:\/\/www\.instagram\.com\/por\.contar\/reel\/DZs-OvoO96n\/"/);
+  assert.match(html, /<a class="boton" href="https:\/\/www\.instagram\.com\/por\.contar\/"/);
   assert.match(html, /rel="noopener"/);
+  assert.doesNotMatch(html, /<iframe/);
 });
 
 test('el HTML deja los contenedores que va a llenar el script', () => {

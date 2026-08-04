@@ -25,75 +25,29 @@ export function plantillaDescarga(descarga) {
 }
 
 /**
- * La tarjeta envuelve al blockquote para que la sección se vea igual de
- * intencional cuando el script de Instagram no carga: en equipos corporativos
- * suele estar bloqueado, y sin la tarjeta quedarían enlaces sueltos.
+ * Extrae el código del reel de una URL con forma
+ * https://www.instagram.com/por.contar/reel/CODIGO/ y arma el iframe de
+ * embed directo de Instagram, que no necesita ningún script de terceros y
+ * respeta `loading="lazy"` para no cargar el video hasta que la persona
+ * llegue a la sección. Si la URL no trae ese formato, se deja un enlace de
+ * respaldo a la publicación en Instagram.
  */
 export function plantillaReel(url) {
+  const coincidencia = url.match(/\/reel\/([\w-]+)\/?/);
+  if (!coincidencia) {
+    return `<article class="reel"><a class="boton" href="${url}" target="_blank" rel="noopener">Ver el reel en Instagram</a></article>`;
+  }
+
+  const codigo = coincidencia[1];
   return `
     <article class="reel">
-      <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14">
-        <a class="boton" href="${url}" target="_blank" rel="noopener">Ver el reel en Instagram</a>
-      </blockquote>
+      <iframe src="https://www.instagram.com/reel/${codigo}/embed/" title="Reel de @por.contar" loading="lazy" allowtransparency="true" allowfullscreen="true" frameborder="0" scrolling="no"></iframe>
     </article>`;
 }
 
 function pintar(documento, id, html) {
   const contenedor = documento.getElementById(id);
   if (contenedor) contenedor.innerHTML = html;
-}
-
-// El script de Instagram ya no viene cargado desde index.html: tiene acceso
-// completo al DOM y no debe correr junto al formulario donde se escribe la
-// cédula. Se inserta bajo demanda, y solo una vez por carga de página.
-let scriptInstagramInsertado = false;
-
-function insertarScriptInstagram(documento) {
-  if (scriptInstagramInsertado) return;
-  scriptInstagramInsertado = true;
-
-  const script = documento.createElement('script');
-  script.src = 'https://www.instagram.com/embed.js';
-  script.async = true;
-  script.addEventListener(
-    'load',
-    () => {
-      if (window.instgrm) window.instgrm.Embeds.process();
-    },
-    { once: true }
-  );
-  documento.head.appendChild(script);
-}
-
-/**
- * Solo carga el script de Instagram cuando la sección de reels entra en el
- * viewport: en equipos corporativos con el dominio bloqueado, o para quien
- * nunca llega a esa sección, el formulario de cédulas nunca comparte página
- * con un script de terceros.
- */
-function procesarInstagram(documento) {
-  if (typeof window === 'undefined') return;
-
-  if (window.instgrm) {
-    window.instgrm.Embeds.process();
-    return;
-  }
-
-  if (scriptInstagramInsertado) return;
-
-  const contenedor = documento.getElementById('lista-reels');
-  if (!contenedor || typeof window.IntersectionObserver !== 'function') {
-    insertarScriptInstagram(documento);
-    return;
-  }
-
-  const observador = new window.IntersectionObserver((entradas) => {
-    if (entradas.some((entrada) => entrada.isIntersecting)) {
-      insertarScriptInstagram(documento);
-      observador.disconnect();
-    }
-  });
-  observador.observe(contenedor);
 }
 
 export function pintarMemorias(documento) {
@@ -109,6 +63,4 @@ export function pintarMemorias(documento) {
   pintar(documento, 'lista-descargas', DESCARGAS.map(plantillaDescarga).join(''));
   pintar(documento, 'lista-reels', REELS.map(plantillaReel).join(''));
   pintar(documento, 'lista-redes', REDES.map((r) => `<a href="${r.url}" target="_blank" rel="noopener">${r.nombre} · ${r.usuario}</a>`).join(''));
-
-  procesarInstagram(documento);
 }

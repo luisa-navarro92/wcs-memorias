@@ -268,30 +268,30 @@ a { color: var(--azul-porcontar); }
    desborde el ancho del contenedor. */
 .reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
 
-/* La tarjeta enmarca tanto el video embebido como el enlace de respaldo.
-   `position: relative` es obligatorio: el script de Instagram inserta su
-   iframe con `position: absolute`, y sin un ancestro posicionado se
-   anclaría al documento y aparecería en cualquier parte de la página. */
+/* La tarjeta enmarca el iframe del reel (o el enlace de respaldo cuando la
+   URL no trae un código de reel válido). Ya no recorta nada: el iframe se ve
+   completo, a lo ancho de la tarjeta. */
 .reel {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 220px;
   padding: 1rem;
   background: var(--blanco-calido);
   border: 1px solid var(--arena);
   border-radius: var(--radio);
-  overflow: hidden;
 }
-.reel blockquote { margin: 0; text-align: center; }
-/* Instagram le pone al iframe un min-width de 326 px en línea: en un
-   teléfono angosto eso desbordaría la tarjeta. */
-.reel iframe { max-width: 100% !important; min-width: 0 !important; }
+.reel iframe {
+  width: 100%;
+  max-width: 100%;
+  height: 640px;
+  border: 0;
+}
 
-/* Cuando el script procesa el reel le cambia la clase al blockquote. Ahí el
-   enlace de respaldo sobra: el video ya se ve. */
-.reel .instagram-media-registered .boton { display: none; }
+@media (max-width: 480px) {
+  /* En pantallas angostas 640px de alto sobra: se reduce para que el reel
+     quepa sin desbordar el viewport. */
+  .reel iframe { height: 480px; }
+}
 
 footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
 footer a { color: var(--blanco-calido); text-decoration: none; }
