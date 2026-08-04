@@ -12,7 +12,7 @@ const FUENTES = {
 const JSPDF = 'https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js';
 
 const IMAGENES = {
-  LOGO_PORCONTAR: 'assets/logo-porcontar.png',
+  LOGO_PORCONTAR: 'assets/generados/logo-porcontar-oscuro.png',
   LOGO_PORCONTAR_BLANCO: 'assets/generados/logo-porcontar-blanco.png',
   LOGO_WCS: 'assets/generados/logo-wcs.png',
   FIRMA: 'assets/generados/firma-ximena.png',
