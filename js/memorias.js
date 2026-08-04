@@ -23,11 +23,18 @@ export function plantillaDescarga(descarga) {
     </article>`;
 }
 
+/**
+ * La tarjeta envuelve al blockquote para que la sección se vea igual de
+ * intencional cuando el script de Instagram no carga: en equipos corporativos
+ * suele estar bloqueado, y sin la tarjeta quedarían enlaces sueltos.
+ */
 export function plantillaReel(url) {
   return `
-    <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14">
-      <a href="${url}" target="_blank" rel="noopener">Ver este reel en Instagram</a>
-    </blockquote>`;
+    <article class="reel">
+      <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14">
+        <a class="boton" href="${url}" target="_blank" rel="noopener">Ver el reel en Instagram</a>
+      </blockquote>
+    </article>`;
 }
 
 function pintar(documento, id, html) {

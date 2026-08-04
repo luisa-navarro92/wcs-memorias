@@ -229,7 +229,22 @@ a { color: var(--azul-porcontar); }
 /* El `min()` evita que en una pantalla de 320 px la columna de 300 px
    desborde el ancho del contenedor. */
 .reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
-.reels blockquote { margin: 0 auto; }
+
+/* La tarjeta enmarca tanto el video embebido como el enlace de respaldo. */
+.reel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 1rem;
+  background: var(--blanco-calido);
+  border: 1px solid var(--arena);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+.reel blockquote { margin: 0; text-align: center; }
+.reel iframe { max-width: 100% !important; }
+.glosario dd { max-width: 68ch; }
 
 footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
 footer a { color: var(--blanco-calido); text-decoration: none; }

@@ -21,7 +21,14 @@ test('plantillaReel produce el blockquote que espera el script de Instagram', ()
   const html = plantillaReel(REELS[0]);
   assert.match(html, /class="instagram-media"/);
   assert.match(html, /data-instgrm-permalink="https:\/\/www\.instagram\.com\/por\.contar\/reel\/Dad_uTjOEpe\/"/);
-  assert.match(html, /Ver este reel en Instagram/);
+  assert.match(html, /Ver el reel en Instagram/);
+});
+
+test('plantillaReel deja un respaldo utilizable si Instagram no carga', () => {
+  const html = plantillaReel(REELS[2]);
+  assert.match(html, /<article class="reel">/, 'falta la tarjeta que enmarca el reel');
+  assert.match(html, /<a class="boton" href="https:\/\/www\.instagram\.com\/por\.contar\/reel\/DZs-OvoO96n\/"/);
+  assert.match(html, /rel="noopener"/);
 });
 
 test('el HTML deja los contenedores que va a llenar el script', () => {
