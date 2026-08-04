@@ -52,7 +52,7 @@ test('la paleta acordada está declarada como variables CSS', () => {
 test('la página carga las tipografías de la marca', () => {
   assert.match(html, /fonts\.googleapis\.com/);
   assert.match(html, /Poppins/);
-  assert.match(html, /Hanken\+Grotesk/);
+  assert.ok(!/Hanken\+Grotesk/.test(html), 'Hanken Grotesk ya no debería cargarse');
 });
 
 test('la página declara idioma español y viewport responsive', () => {
