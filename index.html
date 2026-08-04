@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memorias · IA Learn para la Productividad · WCS Colombia</title>
+<meta name="description" content="Memorias del taller IA Learn para la Productividad dictado por PorContar para WCS Colombia, y descarga del certificado de participación.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <div class="contenedor">
+    <div class="hero__marcas">
+      <img src="assets/generados/logo-porcontar-blanco.png" alt="PorContar">
+      <span class="hero__separador">×</span>
+      <img src="assets/generados/logo-wcs.png" alt="WCS Colombia">
+    </div>
+    <p class="hero__badge">Memorias del taller</p>
+    <h1>IA Learn para la <em>productividad</em></h1>
+    <p class="hero__datos">27 de julio de 2026 · 4 horas · Virtual en vivo · Ximena Villalobos y Luisa Navarro</p>
+    <a class="boton" href="#certificado">Descargar mi certificado</a>
+    <a class="boton boton-secundario" href="#modulos">Ver las memorias</a>
+  </div>
+</header>
+
+<main>
+  <section class="certificado" id="certificado">
+    <div class="contenedor">
+      <p class="antetitulo" style="color: var(--amarillo-porcontar)">Tu certificado</p>
+      <h2>Descarga tu certificado aquí</h2>
+      <p>Escribe tu nombre completo como aparece en tu documento. Validamos que estés en la lista de asistentes y el certificado se descarga al instante.</p>
+
+      <form class="tarjeta-formulario" id="formulario-certificado" novalidate>
+        <div class="campo">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" name="nombre" autocomplete="name" required placeholder="Como aparece en tu cédula">
+        </div>
+        <div class="campo">
+          <label for="cedula">Cédula</label>
+          <input type="text" id="cedula" name="cedula" inputmode="numeric" required placeholder="Solo números">
+        </div>
+        <div class="campo">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" autocomplete="email" required placeholder="tucorreo@wcs.org">
+        </div>
+        <label class="campo-autorizacion">
+          <input type="checkbox" name="autoriza" id="autoriza" required>
+          <span>Autorizo a PorContar Group S.A.S. el tratamiento de mis datos (nombre, cédula y correo) para emitir mi certificado y llevar el control de entrega. Puedo pedir su eliminación escribiendo a <a href="mailto:info.porcontar@gmail.com">info.porcontar@gmail.com</a>.</span>
+        </label>
+        <button class="boton" type="submit" id="boton-generar">Generar mi certificado</button>
+        <div class="estado" id="estado-certificado" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="gracias"></section>
+  <section id="modulos"></section>
+  <section id="prompt"></section>
+  <section id="glosario"></section>
+  <section id="herramientas"></section>
+  <section id="consejos"></section>
+  <section id="regalos"></section>
+  <section id="instagram"></section>
+</main>
+
+<footer></footer>
+
+<a class="boton boton-flotante" href="#certificado">Mi certificado</a>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

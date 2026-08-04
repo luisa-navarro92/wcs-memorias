@@ -1,0 +1,242 @@
+/* Memorias IA Learn WCS. Línea editorial WCS Colombia; PorContar entra como acento. */
+
+:root {
+  --marfil: #F4EFE4;
+  --blanco-calido: #FBF8F2;
+  --verde-bosque: #14432F;
+  --verde-petroleo: #1E5E4E;
+  --teal: #2F9C8B;
+  --azul-agua: #2E7BA6;
+  --arena: #DCD3C2;
+  --texto: #11162A;
+  --azul-porcontar: #2B4FE8;
+  --amarillo-porcontar: #FFF401;
+
+  --display: "Poppins", system-ui, sans-serif;
+  --cuerpo: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --ancho: 1120px;
+  --radio: 18px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--marfil);
+  color: var(--texto);
+  font-family: var(--cuerpo);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.contenedor {
+  width: min(100% - 2.5rem, var(--ancho));
+  margin-inline: auto;
+}
+
+section { padding: 5rem 0; }
+
+.seccion-oscura {
+  background: var(--verde-bosque);
+  color: var(--blanco-calido);
+}
+
+.antetitulo {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verde-petroleo);
+  margin: 0 0 0.6rem;
+}
+
+.seccion-oscura .antetitulo { color: var(--teal); }
+
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0 0 1rem; }
+h1 { font-size: clamp(2.4rem, 5.5vw, 4rem); font-weight: 700; }
+h2 { font-size: clamp(1.8rem, 3.4vw, 2.7rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+
+a { color: var(--azul-porcontar); }
+.seccion-oscura a { color: var(--teal); }
+
+.boton {
+  display: inline-block;
+  padding: 0.95rem 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--azul-porcontar);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.boton:hover { transform: translateY(-2px); background: #1B34B0; }
+.boton:disabled { opacity: 0.6; cursor: progress; transform: none; }
+
+.boton-secundario {
+  background: transparent;
+  color: var(--blanco-calido);
+  border: 1.5px solid rgba(251, 248, 242, 0.4);
+}
+
+/* Hero */
+.hero {
+  background: var(--verde-bosque);
+  color: var(--blanco-calido);
+  padding: 4rem 0 5rem;
+}
+.hero__marcas {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+}
+.hero__marcas img { height: 46px; width: auto; }
+.hero__separador { color: rgba(251, 248, 242, 0.45); font-size: 1.5rem; }
+.hero__badge {
+  display: inline-block;
+  background: var(--amarillo-porcontar);
+  color: var(--texto);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+.hero h1 { max-width: 16ch; }
+.hero h1 em { font-style: normal; color: var(--amarillo-porcontar); }
+.hero__datos {
+  font-family: var(--display);
+  font-weight: 500;
+  color: rgba(251, 248, 242, 0.75);
+  margin: 1.5rem 0 2.5rem;
+}
+
+/* Formulario del certificado */
+.certificado { background: var(--verde-petroleo); color: var(--blanco-calido); }
+.tarjeta-formulario {
+  background: var(--blanco-calido);
+  color: var(--texto);
+  border-radius: var(--radio);
+  padding: 2.5rem;
+  max-width: 620px;
+  box-shadow: 0 24px 60px rgba(20, 67, 47, 0.28);
+}
+.campo { margin-bottom: 1.2rem; }
+.campo label {
+  display: block;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+.campo input[type="text"],
+.campo input[type="email"] {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--arena);
+  border-radius: 12px;
+  background: #fff;
+  font-family: var(--cuerpo);
+  font-size: 1rem;
+}
+.campo input:focus {
+  outline: 2px solid var(--azul-porcontar);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.campo-autorizacion {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: #5b6479;
+  margin: 1.5rem 0;
+}
+.estado { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 12px; display: none; }
+.estado[data-visible="true"] { display: block; }
+.estado--ok { background: #e7f5ef; color: #14432F; }
+.estado--aviso { background: #fdf3d8; color: #6b5300; }
+.estado--error { background: #fdeaea; color: #8b1d1d; }
+
+/* Rejillas */
+.rejilla { display: grid; gap: 1.5rem; }
+.rejilla--2 { grid-template-columns: repeat(2, 1fr); }
+.rejilla--3 { grid-template-columns: repeat(3, 1fr); }
+
+.tarjeta {
+  background: var(--blanco-calido);
+  border: 1px solid var(--arena);
+  border-radius: var(--radio);
+  padding: 1.8rem;
+}
+.seccion-oscura .tarjeta {
+  background: rgba(251, 248, 242, 0.06);
+  border-color: rgba(251, 248, 242, 0.16);
+}
+
+.cifras { display: flex; gap: 3rem; flex-wrap: wrap; margin-top: 2.5rem; }
+.cifra strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--verde-petroleo);
+}
+.cifra span { font-size: 0.95rem; color: #5b6479; }
+
+.etiqueta {
+  display: inline-block;
+  background: var(--arena);
+  color: var(--verde-bosque);
+  font-family: var(--display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  margin: 0.3rem 0.3rem 0 0;
+}
+
+.glosario dt { font-family: var(--display); font-weight: 600; margin-top: 1.2rem; }
+.glosario dd { margin: 0.2rem 0 0; color: #5b6479; }
+
+.descarga {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.2rem;
+}
+
+.reels { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.reels blockquote { margin: 0 auto; }
+
+footer { background: var(--verde-bosque); color: var(--blanco-calido); padding: 4rem 0 3rem; }
+footer a { color: var(--blanco-calido); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+.footer__redes { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 2rem 0; }
+
+.boton-flotante {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 20;
+  box-shadow: 0 12px 30px rgba(43, 79, 232, 0.35);
+}
+
+@media (max-width: 780px) {
+  section { padding: 3.5rem 0; }
+  .rejilla--2, .rejilla--3 { grid-template-columns: 1fr; }
+  .tarjeta-formulario { padding: 1.6rem; }
+  .cifras { gap: 1.8rem; }
+  .hero__marcas img { height: 34px; }
+}
