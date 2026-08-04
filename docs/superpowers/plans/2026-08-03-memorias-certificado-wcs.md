@@ -586,6 +586,19 @@ test('doPost deja pendiente a quien no está en la lista y manda correo', () => 
   assert.match(ent.correos[0].body, /Carlos Andrés Ríos Franco/);
 });
 
+test('doPost guarda la cédula sin puntos y detecta la repetición', () => {
+  const ent = entorno({
+    asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
+  });
+
+  const primera = llamar(ent.globales, { ...solicitud, cedula: '1.032.456.789' });
+  assert.deepEqual(primera, { estado: 'aprobado', tipo: 'primera' });
+  assert.equal(ent.hojas.Descargas.filas[1][3], '1032456789', 'la cédula debe guardarse sin puntos');
+
+  const segunda = llamar(ent.globales, { ...solicitud, cedula: '1032456789' });
+  assert.deepEqual(segunda, { estado: 'aprobado', tipo: 'repetida' });
+});
+
 test('doPost responde error si el cuerpo no es JSON', () => {
   const ent = entorno();
   const { doPost } = cargarGs(['Matcher.gs', 'Logica.gs', 'Codigo.gs'], {
@@ -730,7 +743,7 @@ function crearRepositorio() {
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 21 pruebas en total.
+Expected: PASS, 22 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -883,7 +896,7 @@ function aprobarSeleccionados() {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 24 pruebas en total.
+Expected: PASS, 25 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1051,7 +1064,7 @@ Expected: imprime "Imágenes listas en assets/generados". Abrir los tres PNG y c
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 27 pruebas en total.
+Expected: PASS, 28 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1185,7 +1198,7 @@ Expected: imprime los tamaños de las dos fuentes (alrededor de 150 KB cada una)
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 29 pruebas en total.
+Expected: PASS, 30 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1444,7 +1457,7 @@ export const REDES = [
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 34 pruebas en total.
+Expected: PASS, 35 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1692,7 +1705,7 @@ export async function descargarCertificado(datos) {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 40 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
+Expected: PASS, 41 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
 
 - [ ] **Step 5: Generar un certificado de muestra y revisarlo a ojo**
 
@@ -2166,7 +2179,7 @@ createServer(async (peticion, respuesta) => {
 - [ ] **Step 6: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 45 pruebas en total.
+Expected: PASS, 46 pruebas en total.
 
 - [ ] **Step 7: Revisión visual**
 
@@ -2400,7 +2413,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 50 pruebas en total.
+Expected: PASS, 51 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2663,7 +2676,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 56 pruebas en total.
+Expected: PASS, 57 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -2759,7 +2772,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 56 pruebas
+npm test           # 57 pruebas
 npm run servir     # http://localhost:4173
 ```
 
