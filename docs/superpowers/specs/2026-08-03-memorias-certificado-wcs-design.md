@@ -228,7 +228,8 @@ condensada fuerte que pide la línea WCS. Botones en píldora, radio 999px, como
 ## El certificado
 
 A4 horizontal, 297 × 210 mm, dibujado por código con jsPDF. Texto real y seleccionable,
-alrededor de 200 KB, y cambiar una fecha es editar una línea. Se descartaron la plantilla
+alrededor de 130 KB con las imágenes comprimidas — sin comprimir se va a 3,5 MB, porque jsPDF
+guarda los mapas de bits en crudo —, y cambiar una fecha es editar una línea. Se descartaron la plantilla
 exportada de Canva (cada ajuste obliga a reexportar) y html2canvas (produce una imagen).
 
 Poppins y Hanken Grotesk se embeben en base64 para que el PDF lleve las tipografías reales y

@@ -1678,6 +1678,9 @@ test('construirCertificado arma un PDF A4 horizontal', () => {
 
   assert.equal(Buffer.from(bytes.slice(0, 5)).toString(), '%PDF-');
   assert.ok(bytes.length > 50000, 'el PDF debería traer las fuentes y los logos embebidos');
+  // Sin el parámetro de compresión en addImage, el logo de 1200 px se guarda
+  // en crudo y el certificado pasa de 3,5 MB.
+  assert.ok(bytes.length < 400000, `el PDF pesa ${Math.round(bytes.length / 1024)} KB: falta comprimir las imágenes`);
 
   const ancho = doc.internal.pageSize.getWidth();
   const alto = doc.internal.pageSize.getHeight();
@@ -1772,8 +1775,8 @@ export function construirCertificado(jsPDF, datos, recursos) {
   doc.rect(10, 14, ANCHO - 20, 182);
 
   // Logos
-  doc.addImage(recursos.LOGO_PORCONTAR, 'PNG', 22, 22, 42, 26.5);
-  doc.addImage(recursos.LOGO_WCS, 'PNG', ANCHO - 47, 22, 25, 25.2);
+  doc.addImage(recursos.LOGO_PORCONTAR, 'PNG', 22, 22, 42, 26.5, undefined, 'SLOW');
+  doc.addImage(recursos.LOGO_WCS, 'PNG', ANCHO - 47, 22, 25, 18.1, undefined, 'SLOW');
 
   // Título
   doc.setFont('Poppins', 'bold');
@@ -1827,7 +1830,7 @@ export function construirCertificado(jsPDF, datos, recursos) {
   doc.__finTextos = y;
 
   // Firma
-  doc.addImage(recursos.FIRMA, 'PNG', CENTRO - 18, 158, 36, 29);
+  doc.addImage(recursos.FIRMA, 'PNG', CENTRO - 18, 158, 36, 29, undefined, 'SLOW');
   doc.setDrawColor(...GRIS);
   doc.setLineWidth(0.3);
   doc.line(CENTRO - 32, 186, CENTRO + 32, 186);
