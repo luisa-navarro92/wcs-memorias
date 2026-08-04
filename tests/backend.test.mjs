@@ -99,6 +99,19 @@ test('doPost deja pendiente a quien no está en la lista y manda correo', () => 
   assert.match(ent.correos[0].body, /Carlos Andrés Ríos Franco/);
 });
 
+test('doPost guarda la cédula sin puntos y detecta la repetición', () => {
+  const ent = entorno({
+    asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
+  });
+
+  const primera = llamar(ent.globales, { ...solicitud, cedula: '1.032.456.789' });
+  assert.deepEqual(primera, { estado: 'aprobado', tipo: 'primera' });
+  assert.equal(ent.hojas.Descargas.filas[1][3], '1032456789', 'la cédula debe guardarse sin puntos');
+
+  const segunda = llamar(ent.globales, { ...solicitud, cedula: '1032456789' });
+  assert.deepEqual(segunda, { estado: 'aprobado', tipo: 'repetida' });
+});
+
 test('doPost responde error si el cuerpo no es JSON', () => {
   const ent = entorno();
   const { doPost } = cargarGs(['Matcher.gs', 'Logica.gs', 'Codigo.gs'], {
