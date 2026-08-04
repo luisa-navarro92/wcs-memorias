@@ -2294,7 +2294,9 @@ a { color: var(--azul-porcontar); }
   overflow: hidden;
 }
 .reel blockquote { margin: 0; text-align: center; }
-.reel iframe { max-width: 100% !important; }
+/* Instagram le pone al iframe un min-width de 326 px en linea: en un
+   telefono angosto eso desbordaria la tarjeta. */
+.reel iframe { max-width: 100% !important; min-width: 0 !important; }
 
 /* Cuando el script procesa el reel le cambia la clase al blockquote. Ahí el
    enlace de respaldo sobra: el video ya se ve. */
