@@ -5,7 +5,7 @@ import { pintarMemorias } from './memorias.js';
 export const MENSAJES = {
   aprobado: {
     clase: 'estado--ok',
-    texto: 'Listo. Tu certificado se está descargando; revisá la carpeta de descargas.',
+    texto: 'Listo. Tu certificado se está descargando; revisa la carpeta de descargas.',
   },
   repetida: {
     clase: 'estado--ok',
@@ -13,17 +13,17 @@ export const MENSAJES = {
   },
   pendiente: {
     clase: 'estado--aviso',
-    texto: 'No encontramos tu nombre en la lista de asistentes. Ya avisamos a Ximena y te escribimos apenas lo validemos.',
+    texto: 'No encontramos tu nombre en la lista de asistentes. Ya les avisamos y te escribimos apenas lo validemos.',
   },
   error: {
     clase: 'estado--error',
-    texto: 'No pudimos generar tu certificado en este momento. Intentá de nuevo en un minuto o escribinos a info.porcontar@gmail.com.',
+    texto: 'No pudimos generar tu certificado en este momento. Intenta de nuevo en un minuto o escríbenos a info.porcontar@gmail.com.',
   },
   // El registro quedó hecho pero el PDF no se pudo armar: no es lo mismo que
   // un fallo de red, y la persona necesita saber que su solicitud sí llegó.
   pdf: {
     clase: 'estado--aviso',
-    texto: 'Registramos tu solicitud, pero no pudimos armar el PDF en este navegador. Intentá de nuevo, o escribinos a info.porcontar@gmail.com y te lo enviamos.',
+    texto: 'Registramos tu solicitud, pero no pudimos armar el PDF en este navegador. Intenta de nuevo, o escríbenos a info.porcontar@gmail.com y te lo enviamos.',
   },
 };
 
