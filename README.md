@@ -27,5 +27,5 @@ Para probar el formulario sin Google: `node tools/backend-falso.mjs` y apuntar
 
 ## Cambiar el taller o el cliente
 
-Editar `js/config.js` y reemplazar `assets/logo-porcontar.png` y `assets/logo-wcs.png`.
+Editar `js/config.js` y reemplazar `assets/logo-porcontar-oficial.png` y `assets/logo-wcs.png`.
 Después correr `npm run assets && npm run fuentes`.

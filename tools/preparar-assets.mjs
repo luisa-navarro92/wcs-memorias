@@ -16,50 +16,59 @@ function esAmarillo(r, g, b) {
   return r > 200 && g > 180 && b < 120;
 }
 
-/**
- * Para cada fila, la primera y la última columna con amarillo: el contorno del globo.
- * Devuelve [-1, -1] en las filas donde no hay globo.
- */
-export function limitesDelGlobo(png) {
-  const limites = [];
-  for (let y = 0; y < png.height; y++) {
-    let primera = -1;
-    let ultima = -1;
-    for (let x = 0; x < png.width; x++) {
-      const i = (png.width * y + x) * 4;
-      if (png.data[i + 3] > 0 && esAmarillo(png.data[i], png.data[i + 1], png.data[i + 2])) {
-        if (primera === -1) primera = x;
-        ultima = x;
-      }
+/** Recorta un png al rectángulo [minX, minY, maxX, maxY] (inclusive). */
+function recortarA(png, minX, minY, maxX, maxY) {
+  const recortado = new PNG({ width: maxX - minX + 1, height: maxY - minY + 1 });
+  for (let y = 0; y < recortado.height; y++) {
+    for (let x = 0; x < recortado.width; x++) {
+      const origen = (png.width * (y + minY) + (x + minX)) * 4;
+      const destino = (recortado.width * y + x) * 4;
+      for (let c = 0; c < 4; c++) recortado.data[destino + c] = png.data[origen + c];
     }
-    limites.push([primera, ultima]);
   }
-  return limites;
+  return recortado;
 }
 
 /**
- * Vuelve blancos los píxeles oscuros, para usar el logo sobre fondos verdes.
- * Los tres puntos del globo quedan encerrados por el contorno amarillo y viven
- * sobre el interior blanco: si se blanquearan, desaparecerían. Por eso todo lo
- * que esté entre el borde izquierdo y el derecho del globo se deja intacto.
+ * Recorta el png al rectángulo de los píxeles con alfa mayor al umbral.
+ * Si no hay ningún píxel visible, devuelve el png sin cambios.
  */
-export function aBlanco(png, umbral = 90) {
-  const limites = limitesDelGlobo(png);
+export function recortarAlContenido(png, { umbralAlfa = 20 } = {}) {
+  let minX = png.width;
+  let minY = png.height;
+  let maxX = -1;
+  let maxY = -1;
 
   for (let y = 0; y < png.height; y++) {
-    const [primera, ultima] = limites[y];
     for (let x = 0; x < png.width; x++) {
       const i = (png.width * y + x) * 4;
-      if (png.data[i + 3] === 0) continue;
-
-      const dentroDelGlobo = primera !== -1 && x > primera && x < ultima;
-      if (dentroDelGlobo) continue;
-
-      if (luminancia(png.data[i], png.data[i + 1], png.data[i + 2]) < umbral) {
-        png.data[i] = 255;
-        png.data[i + 1] = 255;
-        png.data[i + 2] = 255;
+      if (png.data[i + 3] > umbralAlfa) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
       }
+    }
+  }
+
+  if (maxX < 0) return png;
+  return recortarA(png, minX, minY, maxX, maxY);
+}
+
+/**
+ * Reemplaza por `color` los píxeles claros (luminancia mayor al umbral) que no
+ * sean transparentes, dejando intactos los amarillos. Sirve para tener el
+ * mismo logo (texto en blanco) listo para usar sobre fondo blanco.
+ */
+export function aOscuro(png, { umbral = 200, color = [17, 22, 42] } = {}) {
+  for (let i = 0; i < png.data.length; i += 4) {
+    if (png.data[i + 3] === 0) continue;
+    if (esAmarillo(png.data[i], png.data[i + 1], png.data[i + 2])) continue;
+
+    if (luminancia(png.data[i], png.data[i + 1], png.data[i + 2]) > umbral) {
+      png.data[i] = color[0];
+      png.data[i + 1] = color[1];
+      png.data[i + 2] = color[2];
     }
   }
   return png;
@@ -116,16 +125,7 @@ export function extraerMarcaDeColor(png, { umbral = 30 } = {}) {
   }
 
   if (maxX < 0) return png;
-
-  const recortado = new PNG({ width: maxX - minX + 1, height: maxY - minY + 1 });
-  for (let y = 0; y < recortado.height; y++) {
-    for (let x = 0; x < recortado.width; x++) {
-      const origen = (png.width * (y + minY) + (x + minX)) * 4;
-      const destino = (recortado.width * y + x) * 4;
-      for (let c = 0; c < 4; c++) recortado.data[destino + c] = png.data[origen + c];
-    }
-  }
-  return recortado;
+  return recortarA(png, minX, minY, maxX, maxY);
 }
 
 function leer(nombre) {
@@ -139,7 +139,8 @@ function escribir(png, nombre) {
 export function main() {
   mkdirSync(SALIDA, { recursive: true });
 
-  escribir(aBlanco(leer('logo-porcontar.png')), 'logo-porcontar-blanco.png');
+  escribir(recortarAlContenido(leer('logo-porcontar-oficial.png')), 'logo-porcontar-blanco.png');
+  escribir(aOscuro(recortarAlContenido(leer('logo-porcontar-oficial.png'))), 'logo-porcontar-oscuro.png');
   escribir(quitarFondoBlanco(leer('firma-ximena.png')), 'firma-ximena.png');
   escribir(extraerMarcaDeColor(leer('logo-wcs.png')), 'logo-wcs.png');
 
