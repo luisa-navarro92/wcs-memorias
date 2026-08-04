@@ -14,9 +14,10 @@ test('normalizarNombre quita tildes, mayúsculas y puntuación', () => {
   assert.equal(normalizarNombre(null), '');
 });
 
-test('tokensNombre descarta conectores y partículas de una letra', () => {
+test('tokensNombre descarta conectores y conserva las iniciales', () => {
   assert.deepEqual(tokensNombre('Jahel García de la Hoz'), ['jahel', 'garcia', 'hoz']);
   assert.deepEqual(tokensNombre('María del Pilar Aguirre'), ['maria', 'pilar', 'aguirre']);
+  assert.deepEqual(tokensNombre('J Pérez'), ['j', 'perez']);
 });
 
 test('coincideNombre acepta los casos reales de la hoja', () => {
@@ -30,6 +31,12 @@ test('coincideNombre acepta los casos reales de la hoja', () => {
   for (const [a, b] of iguales) {
     assert.equal(coincideNombre(a, b), true, `debería coincidir: ${a} / ${b}`);
   }
+});
+
+test('coincideNombre acepta iniciales sueltas y nombres compuestos pegados', () => {
+  assert.equal(coincideNombre('J Pérez', 'Juan Pérez Gómez'), true);
+  assert.equal(coincideNombre('Anamaría Torres', 'Ana María Torres'), true);
+  assert.equal(coincideNombre('Ana María Torres', 'Anamaría Torres'), true);
 });
 
 test('coincideNombre rechaza personas distintas que comparten un nombre', () => {

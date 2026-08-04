@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Memorias del taller IA Learn para WCS Colombia y generador de certificados",
   "scripts": {
-    "test": "node --test tests/",
+    "test": "node --test \"tests/*.test.mjs\"",
     "assets": "node tools/preparar-assets.mjs",
     "fuentes": "node tools/preparar-fuentes.mjs",
     "servir": "node tools/servidor.mjs"
