@@ -22,6 +22,8 @@ export function formatearCedula(valor) {
 }
 
 export function nombreParaMostrar(valor) {
+  // Se capitaliza cada grupo de letras, no cada palabra separada por espacios:
+  // así "Ana Muñoz/Pérez" queda "Ana Muñoz/Pérez" y no "Ana Muñoz/pérez".
   return String(valor)
     .trim()
     .replace(/\s+/g, ' ')
@@ -105,14 +107,16 @@ export function construirCertificado(jsPDF, datos, recursos) {
     'Durante este espacio, los participantes fortalecieron su comprensión sobre los fundamentos de la inteligencia artificial, la ingeniería de prompts y de contexto, las herramientas aplicadas al entorno laboral y las prácticas de uso seguro y responsable de la IA en la organización.',
   ];
 
-  doc.setFontSize(8.5);
+  // Medido: a 9,5 pt sobre 240 mm el cuerpo entra en 4 líneas y termina en
+  // 152,8 mm, con margen frente a la firma, que empieza en 158 mm.
+  doc.setFontSize(9.5);
   doc.setTextColor(...GRIS);
-  let y = 128;
+  let y = 126;
   for (const parrafo of parrafos) {
-    const lineas = doc.splitTextToSize(parrafo, 215);
+    const lineas = doc.splitTextToSize(parrafo, 240);
     for (const linea of lineas) {
       centrar(doc, linea, y);
-      y += 5;
+      y += 5.2;
     }
     y += 3;
   }
