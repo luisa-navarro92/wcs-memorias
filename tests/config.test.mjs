@@ -18,7 +18,7 @@ test('el contenido de las memorias está completo', () => {
   assert.equal(config.ELEMENTOS_PROMPT.length, 6);
   assert.equal(config.GLOSARIO.length, 12);
   assert.equal(config.CONSEJOS.length, 4);
-  assert.equal(config.HERRAMIENTAS.length, 3);
+  assert.equal(config.HERRAMIENTAS.length, 2);
   assert.equal(config.DESCARGAS.length, 3);
   assert.equal(config.REELS.length, 5);
 

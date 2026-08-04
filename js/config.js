@@ -116,15 +116,6 @@ export const HERRAMIENTAS = [
       { nombre: 'Manus', para: 'Ejecución más autónoma de tareas' },
     ],
   },
-  {
-    grupo: 'Automatizaciones',
-    items: [
-      { nombre: 'Make', para: 'Automatización visual, sin código' },
-      { nombre: 'n8n', para: 'Flujos personalizados, más control' },
-      { nombre: 'LangGraph', para: 'Orquestación de agentes y lógica' },
-      { nombre: 'Hermes Agent', para: 'Agentes para tareas encadenadas' },
-    ],
-  },
 ];
 
 export const CONSEJOS = [
