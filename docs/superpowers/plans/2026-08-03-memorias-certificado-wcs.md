@@ -806,6 +806,14 @@ test('construirAprobaciones ignora la cabecera si queda dentro de la selección'
 test('construirAprobaciones devuelve vacío si no hay pendientes', () => {
   assert.deepEqual(construirAprobaciones(filas, 3, 1), []);
 });
+
+test('construirAprobaciones no se sale del rango si la selección pasa del último dato', () => {
+  // Caso real: seleccionar la columna entera en el Sheet.
+  assert.deepEqual(construirAprobaciones(filas, 3, 100), [
+    { fila: 4, nombre: 'Catalina Gutiérrez', correo: 'cgutierrez@wcs.org' },
+  ]);
+  assert.deepEqual(construirAprobaciones(filas, 50, 10), []);
+});
 ```
 
 - [ ] **Step 2: Correr las pruebas y verificar que fallan**
@@ -896,7 +904,7 @@ function aprobarSeleccionados() {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 25 pruebas en total.
+Expected: PASS, 26 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1064,7 +1072,7 @@ Expected: imprime "Imágenes listas en assets/generados". Abrir los tres PNG y c
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 28 pruebas en total.
+Expected: PASS, 29 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1198,7 +1206,7 @@ Expected: imprime los tamaños de las dos fuentes (alrededor de 150 KB cada una)
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 30 pruebas en total.
+Expected: PASS, 31 pruebas en total.
 
 - [ ] **Step 6: Commit**
 
@@ -1457,7 +1465,7 @@ export const REDES = [
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 35 pruebas en total.
+Expected: PASS, 36 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -1705,7 +1713,7 @@ export async function descargarCertificado(datos) {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 41 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
+Expected: PASS, 42 pruebas en total. Si la prueba del bloque de textos falla, bajar el tamaño del cuerpo a 9 pt o acortar el segundo párrafo: no mover el bloque de la firma.
 
 - [ ] **Step 5: Generar un certificado de muestra y revisarlo a ojo**
 
@@ -2179,7 +2187,7 @@ createServer(async (peticion, respuesta) => {
 - [ ] **Step 6: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 46 pruebas en total.
+Expected: PASS, 47 pruebas en total.
 
 - [ ] **Step 7: Revisión visual**
 
@@ -2413,7 +2421,7 @@ Agregar el script de Instagram justo antes de `</body>`, después del módulo de
 - [ ] **Step 5: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 51 pruebas en total.
+Expected: PASS, 52 pruebas en total.
 
 - [ ] **Step 6: Revisión visual**
 
@@ -2676,7 +2684,7 @@ if (typeof document !== 'undefined') {
 - [ ] **Step 4: Correr las pruebas y verificar que pasan**
 
 Run: `npm test`
-Expected: PASS, 57 pruebas en total.
+Expected: PASS, 58 pruebas en total.
 
 - [ ] **Step 5: Commit**
 
@@ -2772,7 +2780,7 @@ certificado de participación en PDF.
 npm install
 npm run assets     # prepara logos y firma
 npm run fuentes    # descarga Poppins y jsPDF
-npm test           # 57 pruebas
+npm test           # 58 pruebas
 npm run servir     # http://localhost:4173
 ```
 
