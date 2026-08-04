@@ -929,7 +929,7 @@ Los tres archivos que entregó Luisa no sirven tal cual: el logo de PorContar es
 
 **Interfaces:**
 - Consumes: `assets/logo-porcontar.png`, `assets/firma-ximena.png`, `assets/logo-wcs.png`
-- Produces: funciones exportadas `luminancia(r, g, b) → number`, `aBlanco(png, umbral = 90) → PNG`, `quitarFondoBlanco(png, { alto = 245, bajo = 200 }) → PNG`, `main() → void`
+- Produces: funciones exportadas `luminancia(r, g, b) → number`, `limitesDelGlobo(png) → [number, number][]`, `aBlanco(png, umbral = 90) → PNG`, `quitarFondoBlanco(png, { alto = 245, bajo = 200 }) → PNG`, `extraerMarcaDeColor(png, { umbral = 30 }) → PNG`, `main() → void`. Las tres funciones de imagen mutan el PNG que reciben y devuelven; `main` siempre les pasa uno recién leído, nunca encadena dos sobre el mismo objeto.
 
 - [ ] **Step 1: Escribir las pruebas**
 
