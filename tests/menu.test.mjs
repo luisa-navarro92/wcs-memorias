@@ -29,3 +29,11 @@ test('construirAprobaciones ignora la cabecera si queda dentro de la selección'
 test('construirAprobaciones devuelve vacío si no hay pendientes', () => {
   assert.deepEqual(construirAprobaciones(filas, 3, 1), []);
 });
+
+test('construirAprobaciones no se sale del rango si la selección pasa del último dato', () => {
+  // Caso real: seleccionar la columna entera en el Sheet.
+  assert.deepEqual(construirAprobaciones(filas, 3, 100), [
+    { fila: 4, nombre: 'Catalina Gutiérrez', correo: 'cgutierrez@wcs.org' },
+  ]);
+  assert.deepEqual(construirAprobaciones(filas, 50, 10), []);
+});
