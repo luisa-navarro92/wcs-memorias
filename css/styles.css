@@ -103,7 +103,13 @@ a { color: var(--azul-porcontar); }
 
 /* Hero */
 .hero {
-  background: var(--verde-bosque);
+  background-color: var(--verde-bosque);
+  background-image:
+    linear-gradient(100deg, rgba(20, 67, 47, 0.97) 0%, rgba(20, 67, 47, 0.92) 45%, rgba(20, 67, 47, 0.72) 100%),
+    url("../assets/banner-wcs.jpg");
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
   color: var(--blanco-calido);
   padding: 4rem 0 5rem;
 }
@@ -282,4 +288,13 @@ footer a:hover { text-decoration: underline; }
   .tarjeta-formulario { padding: 1.6rem; }
   .cifras { gap: 1.8rem; }
   .hero__marcas img { height: 34px; }
+
+  /* En pantallas angostas el encuadre de la silueta se recorta y queda más
+     cerca del texto: se sube la opacidad del gradiente para que el texto
+     blanco siga teniendo contraste alto. */
+  .hero {
+    background-image:
+      linear-gradient(100deg, rgba(20, 67, 47, 0.99) 0%, rgba(20, 67, 47, 0.97) 45%, rgba(20, 67, 47, 0.88) 100%),
+      url("../assets/banner-wcs.jpg");
+  }
 }

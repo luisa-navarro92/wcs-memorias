@@ -73,6 +73,15 @@ test('.boton-secundario:hover se declara después de .boton:hover y conserva el 
   assert.match(bloque, /background:\s*transparent/, 'el botón secundario no debería ponerse azul sólido en hover');
 });
 
+test('el hero usa el banner de fondo semitransparente', () => {
+  assert.match(css, /assets\/banner-wcs\.jpg/, 'el CSS debe referenciar assets/banner-wcs.jpg');
+
+  const posicionHero = css.indexOf('.hero {');
+  assert.ok(posicionHero > -1, 'falta la regla .hero');
+  const bloque = css.slice(posicionHero, css.indexOf('}', posicionHero));
+  assert.match(bloque, /linear-gradient\(/, 'la regla .hero debe incluir un linear-gradient sobre el banner');
+});
+
 test('la regla .glosario dd con max-width no está duplicada', () => {
   const coincidencias = [...css.matchAll(/\.glosario dd\s*\{[^}]*max-width:\s*68ch/g)];
   assert.equal(coincidencias.length, 1, 'la regla .glosario dd { max-width: 68ch } debería declararse una sola vez');
