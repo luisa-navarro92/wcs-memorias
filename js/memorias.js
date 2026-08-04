@@ -35,6 +35,30 @@ function pintar(documento, id, html) {
   if (contenedor) contenedor.innerHTML = html;
 }
 
+/**
+ * El script de Instagram se carga con `async`: puede terminar después de que
+ * pintamos. Sin el reintento, los reels se quedarían como enlaces sueltos.
+ */
+function procesarInstagram(documento) {
+  if (typeof window === 'undefined') return;
+
+  if (window.instgrm) {
+    window.instgrm.Embeds.process();
+    return;
+  }
+
+  const script = documento.querySelector('script[src*="instagram.com/embed.js"]');
+  if (!script) return;
+
+  script.addEventListener(
+    'load',
+    () => {
+      if (window.instgrm) window.instgrm.Embeds.process();
+    },
+    { once: true }
+  );
+}
+
 export function pintarMemorias(documento) {
   pintar(documento, 'lista-cifras', EVALUACION.map((c) => `<div class="cifra"><strong>${c.cifra}</strong><span>${c.etiqueta}</span></div>`).join(''));
   pintar(documento, 'lista-modulos', MODULOS.map(plantillaModulo).join(''));
@@ -50,5 +74,5 @@ export function pintarMemorias(documento) {
   pintar(documento, 'lista-reels', REELS.map(plantillaReel).join(''));
   pintar(documento, 'lista-redes', REDES.map((r) => `<a href="${r.url}" target="_blank" rel="noopener">${r.nombre} · ${r.usuario}</a>`).join(''));
 
-  if (window.instgrm) window.instgrm.Embeds.process();
+  procesarInstagram(documento);
 }
