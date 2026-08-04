@@ -108,6 +108,11 @@ test('doPost guarda la cédula sin puntos y detecta la repetición', () => {
   assert.deepEqual(primera, { estado: 'aprobado', tipo: 'primera' });
   assert.equal(ent.hojas.Descargas.filas[1][3], '1032456789', 'la cédula debe guardarse sin puntos');
 
+  // Se retrocede la marca temporal de la primera descarga para que la segunda
+  // llamada se comporte como una descarga real posterior y no como el
+  // reintento del mismo envío, que ahora se deduplica aparte.
+  ent.hojas.Descargas.filas[1][0] = new Date(Date.now() - 130 * 1000).toISOString();
+
   const segunda = llamar(ent.globales, { ...solicitud, cedula: '1032456789' });
   assert.deepEqual(segunda, { estado: 'aprobado', tipo: 'repetida' });
 });
@@ -140,4 +145,84 @@ test('doPost libera el candado aunque falle la escritura', () => {
 
   assert.equal(respuesta.estado, 'error');
   assert.equal(liberado, true);
+});
+
+test('doPost no expone el detalle del error interno en la respuesta', () => {
+  const ent = entorno();
+  ent.globales.SpreadsheetApp = {
+    openById: () => { throw new Error('No se encontró el archivo con id ABC123SECRETO'); },
+  };
+
+  const respuesta = llamar(ent.globales, solicitud);
+
+  assert.equal(respuesta.estado, 'error');
+  assert.doesNotMatch(respuesta.mensaje, /ABC123SECRETO/);
+  assert.match(respuesta.mensaje, /intenta de nuevo/i);
+});
+
+test('doPost no duplica una solicitud pendiente cuando el navegador reintenta', () => {
+  const ent = entorno();
+
+  const primera = llamar(ent.globales, solicitud);
+  const segunda = llamar(ent.globales, solicitud);
+
+  assert.deepEqual(primera, { estado: 'pendiente' });
+  assert.deepEqual(segunda, { estado: 'pendiente' });
+  assert.equal(ent.hojas.Solicitudes.filas.length, 2, 'la segunda llamada no debería agregar otra fila');
+  assert.equal(ent.correos.length, 1, 'la segunda llamada no debería mandar otro correo');
+});
+
+test('doPost no duplica la fila de Descargas cuando el navegador reintenta una aprobación', () => {
+  const ent = entorno({
+    asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
+  });
+
+  const primera = llamar(ent.globales, solicitud);
+  const segunda = llamar(ent.globales, solicitud);
+
+  assert.deepEqual(primera, { estado: 'aprobado', tipo: 'primera' });
+  assert.deepEqual(segunda, { estado: 'aprobado', tipo: 'primera' });
+  assert.equal(ent.hojas.Descargas.filas.length, 2, 'la segunda llamada no debería agregar otra fila');
+});
+
+test('doPost sí cuenta como repetida una descarga aprobada de hace más de 120 segundos', () => {
+  const marcaVieja = new Date(Date.now() - 130 * 1000).toISOString();
+  const ent = entorno({
+    asistentes: [['Nombre', 'Origen', 'Fecha de alta'], ['Carlos Andrés Ríos Franco', 'Encuesta', '2026-08-03']],
+    descargas: [
+      ['Marca temporal', 'Nombre ingresado', 'Nombre en lista', 'Cédula', 'Correo', 'Tipo'],
+      [marcaVieja, 'Carlos Ríos', 'Carlos Andrés Ríos Franco', '1032456789', 'crios@wcs.org', 'Primera descarga'],
+    ],
+  });
+
+  const respuesta = llamar(ent.globales, solicitud);
+
+  assert.deepEqual(respuesta, { estado: 'aprobado', tipo: 'repetida' });
+  assert.equal(ent.hojas.Descargas.filas.length, 3);
+});
+
+test('doPost no registra la solicitud pendiente si ya hay una con estado Pendiente', () => {
+  const marcaAhora = new Date().toISOString();
+  const ent = entorno({
+    solicitudes: [
+      ['Marca temporal', 'Nombre', 'Cédula', 'Correo', 'Estado'],
+      [marcaAhora, 'Carlos Andrés Ríos Franco', '1032456789', 'crios@wcs.org', 'Pendiente'],
+    ],
+  });
+
+  const respuesta = llamar(ent.globales, solicitud);
+
+  assert.deepEqual(respuesta, { estado: 'pendiente' });
+  assert.equal(ent.hojas.Solicitudes.filas.length, 2, 'no debería agregar otra fila si ya hay una pendiente');
+  assert.equal(ent.correos.length, 0, 'no debería mandar un correo si ya hay una pendiente');
+});
+
+test('notificarSolicitud ya no incluye la cédula en el cuerpo del correo', () => {
+  const ent = entorno();
+
+  llamar(ent.globales, solicitud);
+
+  assert.equal(ent.correos.length, 1);
+  assert.doesNotMatch(ent.correos[0].body, /1032456789/);
+  assert.match(ent.correos[0].body, /Solicitudes/);
 });

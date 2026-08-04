@@ -16,7 +16,13 @@ function datosValidos(extra = {}) {
   };
 }
 
-function repoFalso({ asistentes = ['Carlos Andrés Ríos Franco'], descargados = [] } = {}) {
+function repoFalso({
+  asistentes = ['Carlos Andrés Ríos Franco'],
+  descargados = [],
+  solicitudesPendientes = [],
+  descargasRecientes = [],
+  notificarSolicitud,
+} = {}) {
   return {
     descargas: [],
     solicitudes: [],
@@ -25,15 +31,23 @@ function repoFalso({ asistentes = ['Carlos Andrés Ríos Franco'], descargados =
     yaDescargo(cedula) {
       return descargados.includes(cedula);
     },
+    solicitudPendiente(cedula) {
+      return solicitudesPendientes.includes(cedula);
+    },
+    descargaReciente(cedula) {
+      return descargasRecientes.includes(cedula);
+    },
     registrarDescarga(datos, nombreEnLista, tipo) {
       this.descargas.push({ datos, nombreEnLista, tipo });
     },
     registrarSolicitud(datos) {
       this.solicitudes.push(datos);
     },
-    notificarSolicitud(datos) {
-      this.avisos.push(datos);
-    },
+    notificarSolicitud:
+      notificarSolicitud ||
+      function (datos) {
+        this.avisos.push(datos);
+      },
   };
 }
 
@@ -92,4 +106,38 @@ test('procesarSolicitud rechaza datos inválidos sin tocar el repositorio', () =
   assert.match(resultado.mensaje, /correo/i);
   assert.equal(repo.descargas.length, 0);
   assert.equal(repo.solicitudes.length, 0);
+});
+
+test('procesarSolicitud no duplica una solicitud pendiente que ya se registró', () => {
+  const repo = repoFalso({
+    asistentes: ['Silvia Alvarez'],
+    solicitudesPendientes: ['1032456789'],
+  });
+  const resultado = procesarSolicitud(datosValidos(), repo);
+
+  assert.deepEqual(resultado, { estado: 'pendiente' });
+  assert.equal(repo.solicitudes.length, 0, 'no debería escribir una segunda fila');
+  assert.equal(repo.avisos.length, 0, 'no debería mandar un segundo correo');
+});
+
+test('procesarSolicitud no duplica la fila de una descarga aprobada reciente', () => {
+  const repo = repoFalso({ descargasRecientes: ['1032456789'] });
+  const resultado = procesarSolicitud(datosValidos(), repo);
+
+  assert.deepEqual(resultado, { estado: 'aprobado', tipo: 'primera' });
+  assert.equal(repo.descargas.length, 0, 'un reintento no debería escribir una segunda fila');
+});
+
+test('procesarSolicitud queda registrada como pendiente aunque falle el aviso por correo', () => {
+  const repo = repoFalso({
+    asistentes: ['Silvia Alvarez'],
+    notificarSolicitud: () => {
+      throw new Error('cuota de Gmail agotada');
+    },
+  });
+
+  const resultado = procesarSolicitud(datosValidos(), repo);
+
+  assert.deepEqual(resultado, { estado: 'pendiente' });
+  assert.equal(repo.solicitudes.length, 1, 'la solicitud debe quedar registrada aunque falle el aviso');
 });
